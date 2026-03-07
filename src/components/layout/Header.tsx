@@ -11,12 +11,12 @@ export const Header = () => {
         : 'Student Dashboard';
 
     return (
-        <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-surface-light px-6">
+        <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-surface-light px-4 md:px-6 shrink-0">
             <div className="flex items-center gap-4">
-                <button className="text-slate-500 md:hidden">
-                    <span className="material-icons-round">menu</span>
-                </button>
-                <h1 className="font-display text-2xl font-semibold text-slate-800">{dashboardTitle}</h1>
+                <div className="flex items-center gap-2 md:hidden">
+                    <img src="/icon.png" alt="EduVerify" className="h-6 w-6 object-contain" />
+                </div>
+                <h1 className="font-display text-xl md:text-2xl font-semibold text-slate-800">{dashboardTitle}</h1>
             </div>
             <div className="flex items-center gap-4">
                 <button className="relative rounded-full p-2 text-slate-500 hover:bg-slate-100">

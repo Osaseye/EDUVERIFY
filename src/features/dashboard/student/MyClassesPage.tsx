@@ -6,12 +6,7 @@ export const MyClassesPage = () => {
     const navigate = useNavigate();
 
     // Mock data for classes
-    const classes = [
-        { id: '1', code: 'CS101', name: 'Intro to Programming', instructor: 'Dr. Alan Smith', schedule: 'Mon, Wed 10:00 AM', isSessionOpen: true },
-        { id: '2', code: 'CS305', name: 'Database Systems', instructor: 'Dr. Alan Smith', schedule: 'Tue, Thu 11:30 AM', isSessionOpen: false },
-        { id: '3', code: 'MTH201', name: 'Calculus II', instructor: 'Prof. Sarah Jenkins', schedule: 'Mon, Fri 09:00 AM', isSessionOpen: false },
-        { id: '4', code: 'CS401', name: 'Advanced Algorithms', instructor: 'Prof. Sarah Jenkins', schedule: 'Wed 02:00 PM', isSessionOpen: false },
-    ];
+    const classes: any[] = [];
 
     return (
         <DashboardLayout>
@@ -20,13 +15,18 @@ export const MyClassesPage = () => {
                 <p className="text-slate-600">View and manage the classes you are currently enrolled in.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {classes.map((cls) => (
-                    <div 
-                        key={cls.id} 
-                        onClick={() => navigate(`/student/classes/${cls.id}`)}
-                        className="rounded-xl border border-slate-200 bg-surface-light p-6 shadow-sm hover:shadow-md hover:border-primary/50 cursor-pointer transition-all flex flex-col group relative overflow-hidden"
-                    >
+            {classes.length === 0 ? (
+                <div className="p-12 text-center border border-slate-200 bg-surface-light rounded-xl shadow-sm text-slate-500">
+                    You are not enrolled in any classes.
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {classes.map((cls) => (
+                        <div
+                            key={cls.id}
+                            onClick={() => navigate(`/student/classes/${cls.id}`)}
+                            className="rounded-xl border border-slate-200 bg-surface-light p-6 shadow-sm hover:shadow-md hover:border-primary/50 cursor-pointer transition-all flex flex-col group relative overflow-hidden"
+                        >
                         {cls.isSessionOpen && (
                             <div className="absolute top-0 right-0 right-[-2rem] top-[1rem] bg-emerald-500 text-white text-[10px] font-bold py-1 px-8 rotate-45 shadow-sm">
                                 LIVE
@@ -54,7 +54,8 @@ export const MyClassesPage = () => {
                         </div>
                     </div>
                 ))}
-            </div>
+                </div>
+            )}
         </DashboardLayout>
     );
 };

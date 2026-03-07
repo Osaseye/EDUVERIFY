@@ -27,7 +27,7 @@ export const LoginForm = () => {
 
       const dummyUser = {
         uid: 'user-123',
-        name: role === 'lecturer' ? 'Dr. John Doe' : 'Jane Student',
+        name: role === 'admin' ? 'Admin User' : role === 'lecturer' ? 'Dr. John Doe' : 'Jane Student',
         email,
         role: role,
         matricNumber: role === 'student' ? 'CSC/2020/001' : undefined

@@ -8,18 +8,25 @@ export const ClassDetailsPage = () => {
 
     // Mock data expansion based on ID
     // In a real app we would query the backend with `classId`
-    const mockClass = {
-        id: classId,
-        code: classId === '1' ? 'CS101' : classId === '2' ? 'CS305' : classId === '3' ? 'MTH201' : 'CS401',
-        name: classId === '1' ? 'Intro to Programming' : classId === '2' ? 'Database Systems' : classId === '3' ? 'Calculus II' : 'Advanced Algorithms',
-        instructor: classId === '3' || classId === '4' ? 'Prof. Sarah Jenkins' : 'Dr. Alan Smith',
-        schedule: classId === '1' ? 'Mon, Wed 10:00 AM' : 'Tue, Thu 11:30 AM',
-        isSessionOpen: classId === '1', // Hardcode Session Open only for 'CS101'
-        attendanceRate: '92%',
-        totalClasses: 24,
-        attended: 22,
-        description: 'This is a foundational course that covers variables, data types, structures, and foundational algorithms.'
-    };
+    const mockClass: any = null;
+
+    if (!mockClass) {
+        return (
+            <DashboardLayout>
+                <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
+                    <span className="material-icons-round text-6xl text-slate-300 mb-4">school</span>
+                    <h2 className="text-2xl font-bold text-slate-700">Class Not Found</h2>
+                    <p className="text-slate-500 mt-2">The class details are not available yet.</p>
+                    <button 
+                        onClick={() => navigate('/student/classes')}
+                        className="mt-6 px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-hover"
+                    >
+                        Return to Classes
+                    </button>
+                </div>
+            </DashboardLayout>
+        );
+    }
 
     return (
         <DashboardLayout>

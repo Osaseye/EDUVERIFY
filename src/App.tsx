@@ -18,6 +18,13 @@ import { CreateClassPage } from './features/dashboard/lecturer/CreateClassPage';
 import { CreateAttendanceSessionPage } from './features/dashboard/lecturer/CreateAttendanceSessionPage';
 import { LecturerQRGeneratorPage } from './features/dashboard/lecturer/LecturerQRGeneratorPage';
 import { LecturerAttendanceTrackingPage } from './features/dashboard/lecturer/LecturerAttendanceTrackingPage';
+import { AdminDashboard } from './features/dashboard/admin/AdminDashboard';
+import { AdminUserManagementPage } from './features/dashboard/admin/AdminUserManagementPage';
+import { AdminClassManagementPage } from './features/dashboard/admin/AdminClassManagementPage';
+import { AdminAttendanceReportsPage } from './features/dashboard/admin/AdminAttendanceReportsPage';
+import { AdminSystemLogsPage } from './features/dashboard/admin/AdminSystemLogsPage';
+import { AdminSettingsPage } from './features/dashboard/admin/AdminSettingsPage';
+import { AdminLoginPage } from './pages/auth/AdminLoginPage';
 
 function App() {
   return (
@@ -30,6 +37,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/admin/login" element={<AdminLoginPage />} />
         </Route>
 
         {/* Protected Student Routes */}
@@ -51,6 +59,16 @@ function App() {
           <Route path="/lecturer/qr-generator" element={<LecturerQRGeneratorPage />} />
           <Route path="/lecturer/attendance-tracking" element={<LecturerAttendanceTrackingPage />} />
           <Route path="/lecturer/settings" element={<SettingsPage />} />
+        </Route>
+
+        {/* Protected Admin Routes */}
+        <Route element={<RoleGuard allowedRoles={['admin']} />}>
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<AdminUserManagementPage />} />
+          <Route path="/admin/classes" element={<AdminClassManagementPage />} />
+          <Route path="/admin/reports" element={<AdminAttendanceReportsPage />} />
+          <Route path="/admin/logs" element={<AdminSystemLogsPage />} />
+          <Route path="/admin/settings" element={<AdminSettingsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -3,13 +3,7 @@ import { DashboardLayout } from '../../../components/layout/DashboardLayout';
 
 export const AttendanceHistoryPage = () => {
     // Mock attendance history
-    const history = [
-        { id: '1', date: 'Oct 26, 2023', course: 'CS305: Database Systems', status: 'Present', type: 'Face ID', time: '11:25 AM' },
-        { id: '2', date: 'Oct 25, 2023', course: 'CS101: Intro to Programming', status: 'Present', type: 'QR Code', time: '10:05 AM' },
-        { id: '3', date: 'Oct 24, 2023', course: 'MTH201: Calculus II', status: 'Absent', type: '-', time: '-' },
-        { id: '4', date: 'Oct 23, 2023', course: 'CS101: Intro to Programming', status: 'Present', type: 'Face ID', time: '10:02 AM' },
-        { id: '5', date: 'Oct 20, 2023', course: 'CS401: Advanced Algorithms', status: 'Present', type: 'QR Code', time: '01:55 PM' },
-    ];
+    const history: any[] = [];
 
     return (
         <DashboardLayout>
@@ -63,6 +57,13 @@ export const AttendanceHistoryPage = () => {
                                     </td>
                                 </tr>
                             ))}
+                            {history.length === 0 && (
+                                <tr>
+                                    <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
+                                        No attendance history found.
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>

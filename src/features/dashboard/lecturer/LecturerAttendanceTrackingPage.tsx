@@ -22,7 +22,7 @@ export const LecturerAttendanceTrackingPage = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {[1, 2, 3].map((item) => (
+                                {[] as any[].map((item) => (
                                      <tr key={item} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
                                         <td className="p-4 font-medium text-gray-800">Student {item}</td>
                                         <td className="p-4 text-gray-500">CSC/2020/00{item}</td>
@@ -35,6 +35,11 @@ export const LecturerAttendanceTrackingPage = () => {
                                         </td>
                                      </tr>
                                 ))}
+                                <tr>
+                                    <td colSpan={5} className="p-8 text-center text-gray-500 text-sm">
+                                        No attendance records found.
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>

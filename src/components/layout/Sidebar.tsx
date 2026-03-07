@@ -21,7 +21,20 @@ export const Sidebar = () => {
         { path: '/lecturer/settings', icon: 'settings', label: 'Settings' },
     ];
 
-    const navItems = user?.role === 'lecturer' ? lecturerNavItems : studentNavItems;
+    const adminNavItems = [
+        { path: '/admin/dashboard', icon: 'dashboard', label: 'Dashboard' },
+        { path: '/admin/users', icon: 'group', label: 'User Management' },
+        { path: '/admin/classes', icon: 'school', label: 'Class Management' },
+        { path: '/admin/reports', icon: 'assessment', label: 'Attendance Reports' },
+        { path: '/admin/logs', icon: 'receipt_long', label: 'System Logs' },
+        { path: '/admin/settings', icon: 'settings', label: 'Settings' },
+    ];
+
+    const navItems = user?.role === 'admin'
+        ? adminNavItems
+        : user?.role === 'lecturer'
+        ? lecturerNavItems
+        : studentNavItems;
 
     return (
         <aside className="hidden w-64 overflow-y-auto border-r border-slate-200 bg-surface-light md:block flex-shrink-0">

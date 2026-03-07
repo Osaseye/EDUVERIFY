@@ -35,12 +35,11 @@ export const StudentDashboard = () => {
                         <div className="rounded-lg bg-blue-100 p-2 text-blue-600">
                             <span className="material-icons-round text-xl">school</span>
                         </div>
-                        <span className="flex items-center text-xs font-medium text-green-600">
-                            <span className="material-icons-round mr-1 text-sm">trending_up</span>
-                            Enrolled
+                        <span className="flex items-center text-xs font-medium text-slate-400">
+                            -
                         </span>
                     </div>
-                    <h3 className="text-3xl font-bold text-slate-900">6</h3>
+                    <h3 className="text-3xl font-bold text-slate-900">0</h3>
                     <p className="text-sm font-medium text-slate-500">Total Classes</p>
                 </div>
                 <div className="rounded-xl border border-slate-200 bg-surface-light p-6 shadow-sm">
@@ -48,12 +47,11 @@ export const StudentDashboard = () => {
                         <div className="rounded-lg bg-emerald-100 p-2 text-emerald-600">
                             <span className="material-icons-round text-xl">check_circle</span>
                         </div>
-                        <span className="flex items-center text-xs font-medium text-green-600">
-                            <span className="material-icons-round mr-1 text-sm">trending_up</span>
-                            +2%
+                        <span className="flex items-center text-xs font-medium text-slate-400">
+                            -
                         </span>
                     </div>
-                    <h3 className="text-3xl font-bold text-slate-900">92%</h3>
+                    <h3 className="text-3xl font-bold text-slate-900">0%</h3>
                     <p className="text-sm font-medium text-slate-500">Average Attendance</p>
                 </div>
                 <div className="rounded-xl border border-slate-200 bg-surface-light p-6 shadow-sm">
@@ -61,12 +59,11 @@ export const StudentDashboard = () => {
                         <div className="rounded-lg bg-purple-100 p-2 text-purple-600">
                             <span className="material-icons-round text-xl">history_edu</span>
                         </div>
-                        <span className="flex items-center text-xs font-medium text-red-500">
-                            <span className="material-icons-round mr-1 text-sm">warning</span>
-                            2 Missed
+                        <span className="flex items-center text-xs font-medium text-slate-400">
+                            -
                         </span>
                     </div>
-                    <h3 className="text-3xl font-bold text-slate-900">48</h3>
+                    <h3 className="text-3xl font-bold text-slate-900">0</h3>
                     <p className="text-sm font-medium text-slate-500">Classes Attended</p>
                 </div>
                 <div className="rounded-xl border border-slate-200 bg-surface-light p-6 shadow-sm">
@@ -76,7 +73,7 @@ export const StudentDashboard = () => {
                         </div>
                         <span className="text-xs font-medium text-slate-400">Today</span>
                     </div>
-                    <h3 className="text-3xl font-bold text-slate-900">2</h3>
+                    <h3 className="text-3xl font-bold text-slate-900">0</h3>
                     <p className="text-sm font-medium text-slate-500">Upcoming Sessions</p>
                 </div>
             </div>
@@ -104,34 +101,8 @@ export const StudentDashboard = () => {
                             <h3 className="font-bold text-lg text-slate-800">Recent Attendance Activity</h3>
                             <a className="text-sm font-medium text-primary hover:text-primary-hover" href="#">View All</a>
                         </div>
-                        <div className="divide-y divide-slate-100">
-                            <div className="flex items-start gap-4 p-6 hover:bg-slate-50 transition-colors">
-                                <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600">
-                                    <span className="material-icons-round text-xl">co_present</span>
-                                </div>
-                                <div className="flex-1">
-                                    <div className="flex items-center justify-between">
-                                        <h4 className="font-semibold text-slate-800">CS101: Intro to Programming</h4>
-                                        <span className="text-xs text-slate-500">2 hours ago</span>
-                                    </div>
-                                    <p className="text-sm text-slate-600 mt-1">Attendance marked present for "Lecture 5: Loops".</p>
-                                    <div className="mt-3 flex items-center gap-4 text-xs font-medium text-slate-500">
-                                        <span className="flex items-center gap-1 text-green-600"><span className="h-2 w-2 rounded-full bg-green-500"></span> Verified via Face ID</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex items-start gap-4 p-6 hover:bg-slate-50 transition-colors">
-                                <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600">
-                                    <span className="material-icons-round text-xl">cancel</span>
-                                </div>
-                                <div className="flex-1">
-                                    <div className="flex items-center justify-between">
-                                        <h4 className="font-semibold text-slate-800">MTH201: Calculus II</h4>
-                                        <span className="text-xs text-slate-500">Yesterday</span>
-                                    </div>
-                                    <p className="text-sm text-slate-600 mt-1">Missed attendance for "Lecture 12: Integrals".</p>
-                                </div>
-                            </div>
+                        <div className="divide-y divide-slate-100 p-6 text-center text-slate-500">
+                            No recent activity.
                         </div>
                     </section>
                 </div>
@@ -141,29 +112,8 @@ export const StudentDashboard = () => {
                         <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
                             <h3 className="font-bold text-lg text-slate-800">Upcoming Sessions</h3>
                         </div>
-                        <div className="p-4 space-y-3">
-                            <div className="relative overflow-hidden rounded-lg border border-l-4 border-slate-200 border-l-primary bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
-                                <div className="mb-2 flex justify-between">
-                                    <span className="rounded bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">In 30 min</span>
-                                    <button className="text-slate-400 hover:text-primary"><span className="material-icons-round text-sm">more_horiz</span></button>
-                                </div>
-                                <h4 className="font-bold text-slate-800">CS305: Database Systems</h4>
-                                <p className="text-sm text-slate-500">Room 302 • Lecture Hall B</p>
-                                <div className="mt-3 flex items-center justify-between">
-                                    <div className="text-xs font-medium text-slate-500">Dr. Alan Smith</div>
-                                    <button className="text-xs font-semibold text-primary hover:text-primary-hover">Prepare</button>
-                                </div>
-                            </div>
-                            <div className="relative overflow-hidden rounded-lg border border-l-4 border-slate-200 border-l-orange-500 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
-                                <div className="mb-2 flex justify-between">
-                                    <span className="rounded bg-orange-100 px-2 py-0.5 text-xs font-semibold text-orange-800">14:00 PM</span>
-                                </div>
-                                <h4 className="font-bold text-slate-800">CS401: Advanced Algorithms</h4>
-                                <p className="text-sm text-slate-500">Lab 4 • Science Block</p>
-                                <div className="mt-3 flex items-center justify-between">
-                                    <div className="text-xs font-medium text-slate-500">Prof. Sarah Jenkins</div>
-                                </div>
-                            </div>
+                        <div className="p-6 text-center text-slate-500">
+                            No upcoming sessions.
                         </div>
                         <div className="border-t border-slate-200 px-6 py-3 text-center">
                             <a className="text-sm font-medium text-primary hover:text-primary-hover" href="#">View Full Schedule</a>
