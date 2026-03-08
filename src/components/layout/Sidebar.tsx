@@ -1,15 +1,27 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/useAuthStore';
+import { authService } from '../../services/authService';
+import { toast } from 'sonner';
 
 export const Sidebar = () => {
-    const { user, logout } = useAuthStore();
+    const { user } = useAuthStore();
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        try {
+            await authService.logoutUser();
+            toast.success('Logged out successfully');
+            navigate('/login');
+        } catch (error) {
+            toast.error('Failed to logout');
+        }
+    };
 
     const studentNavItems = [
         { path: '/student/dashboard', icon: 'dashboard', label: 'Dashboard' },
         { path: '/student/classes', icon: 'class', label: 'My Classes' },
         { path: '/student/history', icon: 'history', label: 'Attendance History' },
-        { path: '/student/scanner', icon: 'qr_code_scanner', label: 'Scan Attendance' },
         { path: '/student/settings', icon: 'settings', label: 'Settings' },
     ];
 
@@ -17,7 +29,6 @@ export const Sidebar = () => {
         { path: '/lecturer/dashboard', icon: 'dashboard', label: 'Dashboard' },
         { path: '/lecturer/create-class', icon: 'add_box', label: 'Create Class' },
         { path: '/lecturer/attendance-tracking', icon: 'rule', label: 'Attendance Tracking' },
-        { path: '/lecturer/qr-generator', icon: 'qr_code', label: 'QR Generator' },
         { path: '/lecturer/settings', icon: 'settings', label: 'Settings' },
     ];
 
@@ -73,7 +84,7 @@ export const Sidebar = () => {
                         <h4 className="truncate font-medium text-sm">{user?.name || 'User'}</h4>
                         <p className="truncate text-xs text-slate-500 capitalize">{user?.role || 'Student'}</p>
                     </div>
-                    <button onClick={logout} className="text-slate-400 hover:text-slate-600">
+                    <button onClick={handleLogout} className="text-slate-400 hover:text-slate-600">
                         <span className="material-icons-round text-sm">logout</span>
                     </button>
                 </div>

@@ -12,11 +12,12 @@ import { MyClassesPage } from './features/dashboard/student/MyClassesPage';
 import { ClassDetailsPage } from './features/dashboard/student/ClassDetailsPage';
 import { AttendanceHistoryPage } from './features/dashboard/student/AttendanceHistoryPage';
 import { SettingsPage } from './features/dashboard/student/SettingsPage';
-import { ScannerPage } from './features/dashboard/student/ScannerPage';
-import LecturerDashboard from './features/dashboard/lecturer/LecturerDashboard';
+import { LecturerDashboard } from './features/dashboard/lecturer/LecturerDashboard';
+import { LecturerClassDetailsPage } from './features/dashboard/lecturer/LecturerClassDetailsPage';
 import { CreateClassPage } from './features/dashboard/lecturer/CreateClassPage';
+import { EditClassPage } from './features/dashboard/lecturer/EditClassPage';
 import { CreateAttendanceSessionPage } from './features/dashboard/lecturer/CreateAttendanceSessionPage';
-import { LecturerQRGeneratorPage } from './features/dashboard/lecturer/LecturerQRGeneratorPage';
+// import { LecturerQRGeneratorPage } from './features/dashboard/lecturer/LecturerQRGeneratorPage';
 import { LecturerAttendanceTrackingPage } from './features/dashboard/lecturer/LecturerAttendanceTrackingPage';
 import { AdminDashboard } from './features/dashboard/admin/AdminDashboard';
 import { AdminUserManagementPage } from './features/dashboard/admin/AdminUserManagementPage';
@@ -25,10 +26,15 @@ import { AdminAttendanceReportsPage } from './features/dashboard/admin/AdminAtte
 import { AdminSystemLogsPage } from './features/dashboard/admin/AdminSystemLogsPage';
 import { AdminSettingsPage } from './features/dashboard/admin/AdminSettingsPage';
 import { AdminLoginPage } from './pages/auth/AdminLoginPage';
+import { Toaster } from 'sonner';
+import { useAuthListener } from './hooks/useAuthListener';
 
 function App() {
+  useAuthListener();
+
   return (
     <BrowserRouter>
+      <Toaster position="top-right" richColors />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         
@@ -47,19 +53,18 @@ function App() {
           <Route path="/student/classes" element={<MyClassesPage />} />
           <Route path="/student/classes/:classId" element={<ClassDetailsPage />} />
           <Route path="/student/history" element={<AttendanceHistoryPage />} />
-          <Route path="/student/scanner" element={<ScannerPage />} />
           <Route path="/student/settings" element={<SettingsPage />} />
         </Route>
 
         {/* Protected Lecturer Routes */}
         <Route element={<RoleGuard allowedRoles={['lecturer']} />}>
-          <Route path="/lecturer/dashboard" element={<LecturerDashboard />} />
-          <Route path="/lecturer/create-class" element={<CreateClassPage />} />
+          <Route path="/lecturer/dashboard" element={<LecturerDashboard />} />            <Route path="/lecturer/classes/:classId" element={<LecturerClassDetailsPage />} />          <Route path="/lecturer/create-class" element={<CreateClassPage />} />
+          <Route path="/lecturer/edit-class/:classId" element={<EditClassPage />} />
           <Route path="/lecturer/create-session/:classId" element={<CreateAttendanceSessionPage />} />
-          <Route path="/lecturer/qr-generator" element={<LecturerQRGeneratorPage />} />
+          {/* <Route path="/lecturer/qr-generator" element={<LecturerQRGeneratorPage />} /> */}
           <Route path="/lecturer/attendance-tracking" element={<LecturerAttendanceTrackingPage />} />
           <Route path="/lecturer/settings" element={<SettingsPage />} />
-        </Route>
+        </Route>  
 
         {/* Protected Admin Routes */}
         <Route element={<RoleGuard allowedRoles={['admin']} />}>

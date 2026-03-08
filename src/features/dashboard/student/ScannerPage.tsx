@@ -1,22 +1,76 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Webcam from 'react-webcam';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
+import { Html5Qrcode } from 'html5-qrcode';
+import { attendanceService } from '../../../services/attendanceService';
+import { useAuthStore } from '../../../store/useAuthStore';
+import { toast } from 'sonner';
 
 export const ScannerPage = () => {
     const [mode, setMode] = useState<'options' | 'face' | 'qr'>('options');
     const [status, setStatus] = useState<'scanning' | 'success' | 'failed'>('scanning');
     const webcamRef = useRef<Webcam>(null);
+    const { user } = useAuthStore();
 
-    // Simulate scanning process
+    // Simulate scanning process for face
     useEffect(() => {
-        let timer: NodeJS.Timeout;
-        if (mode !== 'options' && status === 'scanning') {
-            timer = setTimeout(() => {
+        let timer: number;
+        if (mode === 'face' && status === 'scanning') {
+            timer = window.setTimeout(() => {
                 setStatus('success');
             }, 3000); // simulate a 3-second scan
         }
-        return () => clearTimeout(timer);
+        return () => window.clearTimeout(timer);
     }, [mode, status]);
+
+    // Setup QR Scanner
+    useEffect(() => {
+        let html5QrCode: Html5Qrcode | null = null;
+
+        if (mode === 'qr' && status === 'scanning') {
+            html5QrCode = new Html5Qrcode('reader');
+            html5QrCode.start(
+                { facingMode: 'environment' },
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 },
+                },
+                async (decodedText, _decodedResult) => {
+                    try {
+                        const payload = JSON.parse(decodedText);
+                        if (!payload.sessionId) {
+                            throw new Error('Invalid QR code');
+                        }
+                        
+                        await attendanceService.markAttendance({
+                            sessionId: payload.sessionId,
+                            userId: user!.uid,
+                            status: 'present',
+                            
+                            verificationMethod: 'qr',
+                            location: { latitude: 0, longitude: 0 }
+                        });
+                        
+                        setStatus('success');
+                        html5QrCode?.stop().catch(console.error);
+                        toast.success('Attendance marked successfully');
+                    } catch (error) {
+                        console.error('Failed to parse or mark attendance:', error);
+                        toast.error('Failed to mark attendance. Invalid QR code or session.');
+                    }
+                }
+            ).catch((err) => {
+                console.error("Error starting scanner", err);
+                toast.error('Failed to start camera. Please check permissions.');
+            });
+        }
+
+        return () => {
+            if (html5QrCode?.isScanning) {
+                html5QrCode.stop().catch(console.error);
+            }
+        };
+    }, [mode, status, user]);
 
     const resetScan = () => {
         setMode('options');
@@ -65,13 +119,17 @@ export const ScannerPage = () => {
                         <div className="relative w-full max-w-sm aspect-[4/3] bg-slate-900 rounded-2xl overflow-hidden shadow-inner border-4 border-slate-100 flex items-center justify-center">
                             {status === 'scanning' ? (
                                 <>
-                                    <Webcam
-                                        audio={false}
-                                        ref={webcamRef}
-                                        screenshotFormat="image/jpeg"
-                                        videoConstraints={{ facingMode: mode === 'qr' ? 'environment' : 'user' }}
-                                        className="w-full h-full object-cover"
-                                    />
+                                    {mode === 'face' ? (
+                                        <Webcam
+                                            audio={false}
+                                            ref={webcamRef}
+                                            screenshotFormat="image/jpeg"
+                                            videoConstraints={{ facingMode: 'user' }}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <div id="reader" className="w-full h-full" />
+                                    )}
                                     {/* Scanning Overlay Effect */}
                                     <div className="absolute inset-0 pointer-events-none z-10 box-border">
                                         <div className={`absolute top-0 left-0 w-full h-[2px] bg-primary shadow-[0_0_10px_2px_#046c4e] animate-[scan_2s_ease-in-out_infinite]`}></div>

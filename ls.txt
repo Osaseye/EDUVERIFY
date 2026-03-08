@@ -1,0 +1,6 @@
+face_landmark_68_model-weights_manifest.json = 7889
+face_landmark_68_model.weights.bin = 4368
+face_recognition_model-weights_manifest.json = 18303
+face_recognition_model.weights.bin = 4368
+tiny_face_detector_model-weights_manifest.json = 2953
+tiny_face_detector_model.weights.bin = 4368

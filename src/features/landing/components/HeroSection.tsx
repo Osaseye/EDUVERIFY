@@ -1,6 +1,16 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { useAuthStore } from '../../../store/useAuthStore';
 
 export const HeroSection = () => {
+  const { user } = useAuthStore();
+  
+  const dashboardRoutes = {
+    student: '/student/dashboard',
+    lecturer: '/lecturer/dashboard',
+    admin: '/admin/dashboard',
+  };
+
   return (
     <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
       <div className="absolute inset-0 bg-pattern z-0 pointer-events-none"></div>
@@ -16,11 +26,18 @@ export const HeroSection = () => {
           Transform campus security and streamline classroom management with AI-powered identity verification. Fast, accurate, and contactless.
         </p>
         <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
-          <a className="px-8 py-4 bg-primary text-white rounded-full font-semibold text-lg shadow-lg shadow-primary/30 hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-center gap-2" href="#">
-            Get Started Free
-            <span className="material-symbols-outlined text-sm">arrow_forward</span>
-          </a>
-          <a className="px-8 py-4 bg-white text-text-light border border-gray-200 rounded-full font-semibold text-lg hover:bg-gray-50 transition-all flex items-center justify-center" href="#">
+          {user ? (
+            <Link to={dashboardRoutes[user.role as keyof typeof dashboardRoutes] || '/'} className="px-8 py-4 bg-primary text-white rounded-full font-semibold text-lg shadow-lg shadow-primary/30 hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-center gap-2">
+              Go to Dashboard
+              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            </Link>
+          ) : (
+            <Link to="/register" className="px-8 py-4 bg-primary text-white rounded-full font-semibold text-lg shadow-lg shadow-primary/30 hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-center gap-2">
+              Get Started Free
+              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            </Link>
+          )}
+          <a className="px-8 py-4 bg-white text-text-light border border-gray-200 rounded-full font-semibold text-lg hover:bg-gray-50 transition-all flex items-center justify-center" href="#demo">
             <span className="material-symbols-outlined mr-2">play_circle</span>
             See How It Works
           </a>

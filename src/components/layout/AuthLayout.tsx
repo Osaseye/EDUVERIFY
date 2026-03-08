@@ -1,7 +1,28 @@
 import React from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Navigate, Outlet } from 'react-router-dom';
+import { useAuthStore } from '../../store/useAuthStore';
 
 export const AuthLayout = () => {
+  const { user, loading } = useAuthStore();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background-light">
+        <span className="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>
+      </div>
+    );
+  }
+
+  // If user is already logged in, redirect them to their respective dashboard
+  if (user) {
+    const dashboardRoutes = {
+      student: '/student/dashboard',
+      lecturer: '/lecturer/dashboard',
+      admin: '/admin/dashboard',
+    };
+    return <Navigate to={dashboardRoutes[user.role as keyof typeof dashboardRoutes] || '/'} replace />;
+  }
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-background-light">
       {/* Left Form Section */}

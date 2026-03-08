@@ -1,0 +1,10 @@
+face_landmark_68_model-shard1: 356840
+face_landmark_68_model-weights_manifest.json: 14790
+face_landmark_68_model.weights.bin: 4368
+face_recognition_model-shard1: 4194304
+face_recognition_model-shard2: 2249728
+face_recognition_model-weights_manifest.json: 32797
+face_recognition_model.weights.bin: 4368
+tiny_face_detector_model-shard1: 193321
+tiny_face_detector_model-weights_manifest.json: 5646
+tiny_face_detector_model.weights.bin: 4368

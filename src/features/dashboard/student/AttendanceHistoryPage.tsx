@@ -1,9 +1,76 @@
-import React from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
+import { attendanceService } from '../../../services/attendanceService';
+import { classService } from '../../../services/classService';
+import { useAuthStore } from '../../../store/useAuthStore';
+import { format } from 'date-fns';
 
 export const AttendanceHistoryPage = () => {
-    // Mock attendance history
-    const history: any[] = [];
+    const { user } = useAuthStore();
+    const [allSessions, setAllSessions] = useState<any[]>([]);
+
+    const { data: records = [], isLoading: isLoadingRecords } = useQuery({
+        queryKey: ['student-attendance-records', user?.uid],
+        queryFn: () => attendanceService.getRecordsByStudentId(user!.uid),
+        enabled: !!user?.uid
+    });
+
+    const { data: classes = [], isLoading: isLoadingClasses } = useQuery({
+        queryKey: ['student-my-classes', user?.uid],
+        queryFn: () => classService.getStudentClasses(user!.uid),
+        enabled: !!user?.uid
+    });
+
+    // Fetch sessions related to the user's classes
+    useEffect(() => {
+        if (classes.length > 0) {
+            const fetchSessions = async () => {
+                const sessionsPromises = classes.map(cls => attendanceService.getSessionsByClassId(cls.id));
+                const sessionsResults = await Promise.all(sessionsPromises);
+                setAllSessions(sessionsResults.flat());
+            };
+            fetchSessions();
+        }
+    }, [classes]);
+
+    const history = useMemo(() => {
+        if (!records.length) return [];
+        
+        return records.map(record => {
+            const session = allSessions.find(s => s.id === record.sessionId);
+            let course = classes.find(c => c.id === session?.classId);
+            
+            // if we have denormalized classId on the record itself
+            if (!course && record.classId) {
+                course = classes.find(c => c.id === record.classId);
+            }
+
+            let dateStr = 'Unknown Date';
+            let timeStr = 'Unknown Time';
+            if (record.timestamp?.seconds) {
+                dateStr = format(new Date(record.timestamp.seconds * 1000), 'MMM dd, yyyy');
+                timeStr = format(new Date(record.timestamp.seconds * 1000), 'hh:mm a');
+            } else if (record.createdAt) {
+                dateStr = format(new Date(record.createdAt), 'MMM dd, yyyy');
+                timeStr = format(new Date(record.createdAt), 'hh:mm a');
+            }
+            
+            return {
+                id: record.id,
+                date: dateStr,
+                course: course?.name || course?.courseName || course?.code || `Course (${session?.classId || '...'})`,
+                time: timeStr,
+                type: record.verificationMethod === 'face' ? 'Face ID' : record.verificationMethod === 'qr' ? 'QR Code' : 'Manual',
+                status: record.status ? record.status.charAt(0).toUpperCase() + record.status.slice(1) : 'Present',
+                rawDate: record.timestamp?.seconds || 0
+            };
+        }).sort((a, b) => b.rawDate - a.rawDate);
+    }, [records, classes, allSessions]);
+
+    // Check loading
+    const isLoading = isLoadingRecords || isLoadingClasses;
+
 
     return (
         <DashboardLayout>
@@ -37,32 +104,40 @@ export const AttendanceHistoryPage = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {history.map((record) => (
-                                <tr key={record.id} className="hover:bg-slate-50 transition-colors">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 font-medium">{record.date}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{record.course}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{record.time}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                        <div className="flex items-center gap-2">
-                                            {record.type === 'Face ID' && <span className="material-icons-round text-blue-500 text-sm">face</span>}
-                                            {record.type === 'QR Code' && <span className="material-icons-round text-purple-500 text-sm">qr_code</span>}
-                                            {record.type}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                            ${record.status === 'Present' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                            {record.status}
-                                        </span>
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
+                                        Loading attendance history...
                                     </td>
                                 </tr>
-                            ))}
-                            {history.length === 0 && (
+                            ) : history.length === 0 ? (
                                 <tr>
                                     <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
                                         No attendance history found.
                                     </td>
                                 </tr>
+                            ) : (
+                                history.map((record: any) => (
+                                    <tr key={record.id} className="hover:bg-slate-50 transition-colors">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 font-medium">{record.date}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{record.course}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{record.time}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                                            <div className="flex items-center gap-2">
+                                                {record.type === 'Face ID' && <span className="material-icons-round text-blue-500 text-sm">face</span>}
+                                                {record.type === 'QR Code' && <span className="material-icons-round text-purple-500 text-sm">qr_code</span>}
+                                                {record.type}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                                record.status === 'Present' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                            }`}>
+                                                {record.status}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))
                             )}
                         </tbody>
                     </table>

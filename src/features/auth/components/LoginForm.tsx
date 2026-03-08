@@ -1,50 +1,41 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../store/useAuthStore';
+import { authService } from '../../../services/authService';
+import { toast } from 'sonner';
 
 export const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  
+
   const navigate = useNavigate();
-  const setUser = useAuthStore(state => state.setUser);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    // Simulate API call
-    setTimeout(() => {
-      let role: 'student' | 'lecturer' | 'admin' = 'student';
-      if (email.toLowerCase() === 'teacher@eduverify.com' || email.toLowerCase() === 'lecturer@eduverify.com') {
-          role = 'lecturer';
-      } else if (email.toLowerCase() === 'admin@eduverify.com') {
-          role = 'admin';
-      }
+    try {
+      const user = await authService.loginWithEmail(email, password);
+      toast.success('Login successful!');
 
-      const dummyUser = {
-        uid: 'user-123',
-        name: role === 'admin' ? 'Admin User' : role === 'lecturer' ? 'Dr. John Doe' : 'Jane Student',
-        email,
-        role: role,
-        matricNumber: role === 'student' ? 'CSC/2020/001' : undefined
-      } as any;
-      
-      setUser(dummyUser);
-      
-      // Route based on role
-      if (role === 'student') {
+      if (user.role === 'student') {
         navigate('/student/dashboard');
-      } else if (role === 'lecturer') {
-         navigate('/lecturer/dashboard');
+      } else if (user.role === 'lecturer') {
+        navigate('/lecturer/dashboard');
       } else {
-         navigate('/admin/dashboard');
+        navigate('/admin/dashboard');
       }
-      
-    }, 1500);
+    } catch (err: any) {
+      console.error('Login error:', err);
+      setError(err.message || 'Failed to sign in.');
+      toast.error('Login failed.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -85,24 +76,23 @@ export const LoginForm = () => {
             lock
           </span>
           <input
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+            className="w-full pl-12 pr-12 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
             placeholder="••••••••"
             required
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none flex items-center justify-center"
+          >
+            <span className="material-symbols-outlined text-xl">
+              {showPassword ? 'visibility_off' : 'visibility'}
+            </span>
+          </button>
         </div>
-      </div>
-      
-      <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
-          <p className="text-xs text-blue-700 font-medium mb-1 flex items-center gap-1">
-              <span className="material-symbols-outlined text-sm">info</span> Helper
-          </p>
-          <ul className="text-xs text-blue-600 list-disc pl-4 space-y-1">
-              <li>Log in with <strong className="font-bold">teacher@eduverify.com</strong> to access the Lecturer Dashboard.</li>
-              <li>Log in with any other email for the Student Dashboard.</li>
-          </ul>
       </div>
 
       <button

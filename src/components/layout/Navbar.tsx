@@ -1,7 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuthStore } from '../../store/useAuthStore';
 
 export const Navbar = () => {
+  const { user } = useAuthStore();
+  
+  const dashboardRoutes = {
+    student: '/student/dashboard',
+    lecturer: '/lecturer/dashboard',
+    admin: '/admin/dashboard',
+  };
+
   return (
     <nav className="fixed w-full z-50 bg-surface-light/80 backdrop-blur-md border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -21,8 +30,16 @@ export const Navbar = () => {
             <a className="text-text-muted-light hover:text-primary transition-colors font-medium" href="#resources">Resources</a>
           </div>
           <div className="flex items-center gap-4">
-            <Link to="/login" className="hidden md:block text-primary font-semibold hover:underline">Log in</Link>
-            <a className="bg-primary hover:bg-opacity-90 text-white px-5 py-2.5 rounded-full font-medium transition-all shadow-lg hover:shadow-primary/30" href="#demo">Book a Demo</a>
+            {user ? (
+              <Link to={dashboardRoutes[user.role as keyof typeof dashboardRoutes] || '/'} className="bg-primary hover:bg-opacity-90 text-white px-5 py-2.5 rounded-full font-medium transition-all shadow-lg hover:shadow-primary/30">
+                Go to Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link to="/login" className="hidden md:block text-primary font-semibold hover:underline">Log in</Link>
+                <a className="bg-primary hover:bg-opacity-90 text-white px-5 py-2.5 rounded-full font-medium transition-all shadow-lg hover:shadow-primary/30" href="#demo">Book a Demo</a>
+              </>
+            )}
           </div>
         </div>
       </div>

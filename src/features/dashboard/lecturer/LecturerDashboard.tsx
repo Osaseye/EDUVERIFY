@@ -1,134 +1,123 @@
 import React from 'react';
 import { useAuthStore } from '../../../store/useAuthStore';
+import { useQuery } from '@tanstack/react-query';
+import { classService } from '../../../services/classService';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-const stats: any[] = [];
-const upcomingClasses: any[] = [];
+export const LecturerDashboard = () => {
+    const { user } = useAuthStore();
+    const navigate = useNavigate();
 
-const LecturerDashboard = () => {
-    const user = useAuthStore(state => state.user);
+    const { data: myClasses = [], isLoading } = useQuery({
+        queryKey: ['lecturer-classes', user?.uid],
+        queryFn: () => classService.getClassesByLecturer(user?.uid || ''),
+        enabled: !!user?.uid
+    });
+
+    const recentActivity = myClasses.length > 0 ? myClasses.slice(0, 3) : [];
 
     return (
         <DashboardLayout>
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <div>
-                   <h1 className="text-2xl font-bold text-text-light mb-1">
-                       Welcome back, {user?.name || 'Lecturer'} 👋
-                   </h1>
-                   <p className="text-text-muted-light">
-                       Here's what's happening with your classes today.
-                   </p>
-                </div>
-                <div className="flex gap-3">
-                   <Link to="/lecturer/create-class" className="px-5 py-2.5 bg-primary text-white font-medium rounded-xl hover:bg-opacity-90 transition-all flex items-center gap-2 shadow-sm">
-                       <span className="material-symbols-outlined text-sm">add</span>
-                       Create Class
-                   </Link>
-                   <button className="px-5 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-all flex items-center gap-2 border border-gray-200">
-                       <span className="material-symbols-outlined text-sm">file_download</span>
-                       Export Reports
-                   </button>
-                </div>
-            </div>
-
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {stats.length === 0 ? (
-                    <div className="col-span-full bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center text-gray-500">
-                        No stats available.
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+                <header className="bg-surface-light border border-slate-200 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
+                    <div>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">
+                            Welcome back, Prof. {user?.name} 👋
+                        </h1>
+                        <p className="text-slate-600 font-medium">Ready for your classes today?</p>
                     </div>
-                ) : (
-                    stats.map((stat, i) => (
-                        <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                            <div className="flex items-start justify-between mb-4">
-                                <div className={`p-3 rounded-xl ${stat.color}`}>
-                                    <span className="material-symbols-outlined">{stat.icon}</span>
-                                </div>
-                                <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{stat.trend}</span>
+
+                    <div className="flex gap-3">
+                        <button onClick={() => navigate('/lecturer/create-class')} className="bg-primary text-white px-5 py-2.5 rounded-xl font-medium hover:bg-primary-hover transition-colors shadow-sm flex items-center gap-2">
+                            <span className="material-icons-round text-sm">add</span>
+                            Create Class
+                        </button>
+                    </div>
+                </header>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <section className="lg:col-span-2 space-y-4">
+                        <div className="flex items-center justify-between mb-2">
+                            <h2 className="text-xl font-bold text-slate-800">My Classes</h2>
+                            <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-sm font-semibold">{myClasses.length} Total</span>
+                        </div>
+
+                        {isLoading ? (
+                            <div className="bg-surface-light border border-slate-200 rounded-2xl p-8 flex items-center justify-center">
+                                <div className="w-8 h-8 rounded-full border-4 border-slate-200 border-t-primary animate-spin"></div>
                             </div>
-                            <h3 className="text-gray-500 text-sm font-medium mb-1">{stat.label}</h3>
-                            <p className="text-3xl font-bold text-gray-800">{stat.value}</p>
-                        </div>
-                    ))
-                )}
-            </div>
+                        ) : myClasses.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {myClasses.map((cls) => (
+                                    <div key={cls.id} className="bg-surface-light border border-slate-200 p-5 rounded-2xl hover:border-primary/30 hover:shadow-md transition-all group">
+                                        <div className="flex justify-between items-start mb-3">
+                                            <span className="bg-slate-100 text-slate-700 text-xs font-bold px-2 py-1 rounded-md">{cls.code}</span>
+                                        </div>
+                                        <h3 className="font-bold text-slate-800 text-lg mb-1 group-hover:text-primary transition-colors">{cls.name}</h3>
+                                        <p className="text-sm text-slate-500 font-medium mb-4">{cls.studentIds?.length || 0} Students Enrolled</p>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Main Content Area */}
-                <div className="lg:col-span-2 space-y-6">
-                   <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                       <div className="flex items-center justify-between mb-6">
-                           <h2 className="text-lg font-bold text-text-light">Today's Classes</h2>
-                           <button className="text-primary text-sm font-medium hover:underline">View Schedule</button>
-                       </div>
-                       
-                       <div className="space-y-4">
-                           {upcomingClasses.map((cls) => (
-                               <div key={cls.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-gray-100 bg-gray-50 hover:bg-gray-100/50 transition-colors gap-4">
-                                   <div className="flex items-start gap-4">
-                                       <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                                            <span className="material-symbols-outlined">library_books</span>
-                                       </div>
-                                       <div>
-                                           <h3 className="font-bold text-gray-800">{cls.course}</h3>
-                                           <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
-                                               <span className="flex items-center gap-1"><span className="material-symbols-outlined text-xs">schedule</span> {cls.time}</span>
-                                               <span className="flex items-center gap-1"><span className="material-symbols-outlined text-xs">location_on</span> {cls.location}</span>
-                                           </div>
-                                       </div>
-                                   </div>
-                                   <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 w-full sm:w-auto mt-2 sm:mt-0 pt-3 sm:pt-0 border-t border-gray-200 sm:border-0">
-                                       <div className="text-sm font-medium text-gray-500">
-                                            Students: <span className="text-gray-800 font-bold">{cls.attendance}</span>
-                                       </div>
-                                       <Link to={`/lecturer/create-session/${cls.id}`} className="px-4 py-2 bg-text-light text-white text-sm font-bold rounded-lg hover:bg-gray-800 transition-colors w-full sm:w-auto border border-transparent shadow-sm whitespace-nowrap text-center">
-                                           Start Session
-                                       </Link>
-                                   </div>
-                               </div>
-                           ))}
-                           
-                           {upcomingClasses.length === 0 && (
-                               <div className="text-center py-8 text-gray-500">
-                                   <span className="material-symbols-outlined text-4xl mb-2 text-gray-300">event_available</span>
-                                   <p>No classes scheduled for today.</p>
-                               </div>
-                           )}
-                       </div>
-                   </div>
-                </div>
+                                        <div className="flex gap-2 mt-4 pt-4 border-t border-slate-100">
+                                            <button onClick={() => navigate(`/lecturer/classes/${cls.id}`)} className="flex-1 bg-slate-100 text-slate-600 py-2 rounded-lg text-[13px] font-bold hover:bg-slate-200 transition-colors">Details</button>
+                                            <button onClick={() => navigate(`/lecturer/edit-class/${cls.id}`)} className="flex-1 bg-slate-100 text-slate-600 py-2 rounded-lg text-[13px] font-bold hover:bg-slate-200 transition-colors">Edit</button>
+                                            <button 
+                                                onClick={() => {
+                                                    if (!cls.studentIds || cls.studentIds.length === 0) {
+                                                        alert("You cannot start a session for a class with no enrolled students.");
+                                                        return;
+                                                    }
+                                                    navigate(`/lecturer/create-session/${cls.id}`);
+                                                }} 
+                                                className={`flex-1 text-white py-2 rounded-lg text-[13px] font-bold transition-colors flex justify-center items-center gap-1 ${!cls.studentIds || cls.studentIds.length === 0 ? 'bg-slate-300 cursor-not-allowed' : 'bg-primary hover:bg-primary-hover'}`}
+                                                title={!cls.studentIds || cls.studentIds.length === 0 ? "No students enrolled" : "Start Session"}
+                                            >
+                                                <span className="material-icons-round text-[16px]">qr_code</span> Start
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="bg-surface-light border border-slate-200 rounded-2xl p-8 text-center">
+                                <span className="material-icons-round text-5xl text-slate-300 mb-3">school</span>
+                                <h3 className="text-lg font-bold text-slate-700">No classes yet</h3>
+                                <p className="text-slate-500 mt-1 mb-4">Create your first class to get started.</p>
+                                <button
+                                    onClick={() => navigate('/lecturer/create-class')}
+                                    className="bg-primary text-white px-5 py-2.5 rounded-xl font-medium hover:bg-primary-hover transition-colors shadow-sm"
+                                >
+                                    Create First Class
+                                </button>
+                            </div>
+                        )}
+                    </section>
 
-                {/* Right Sidebar Area */}
-                <div className="space-y-6">
-                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-lg font-bold text-text-light">Quick Actions</h2>
+                    <aside className="space-y-4">
+                        <h2 className="text-xl font-bold text-slate-800">Recent Activity</h2>
+                        <div className="bg-surface-light border border-slate-200 rounded-2xl p-5 shadow-sm">
+                            {recentActivity.length > 0 ? (
+                                <div className="space-y-4">
+                                    {recentActivity.map((cls) => (
+                                        <div key={cls.id} className="flex items-start gap-3 pb-4 border-b border-slate-100 last:border-0 last:pb-0">
+                                            <div className="bg-primary/10 p-2 rounded-lg text-primary mt-1">
+                                                <span className="material-icons-round text-[16px]">add_circle</span>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-slate-800">Created class {cls.name}</p>
+                                                <p className="text-xs text-slate-500">{new Date(cls.createdAt || Date.now()).toLocaleDateString()}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-6">
+                                    <p className="text-sm text-slate-500">No recent activity.</p>
+                                </div>
+                            )}
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
-                            <Link to="/lecturer/qr-generator" className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-200 hover:border-primary hover:bg-green-50/50 transition-all text-gray-600 hover:text-primary group">
-                                <span className="material-symbols-outlined text-2xl mb-2 group-hover:scale-110 transition-transform">qr_code</span>
-                                <span className="text-xs font-medium text-center">QR Generator</span>
-                            </Link>
-                            <Link to="/lecturer/attendance-tracking" className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-200 hover:border-primary hover:bg-green-50/50 transition-all text-gray-600 hover:text-primary group">
-                                <span className="material-symbols-outlined text-2xl mb-2 group-hover:scale-110 transition-transform">rule</span>
-                                <span className="text-xs font-medium text-center">Track Attendance</span>
-                            </Link>
-                            <button className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-200 hover:border-primary hover:bg-green-50/50 transition-all text-gray-600 hover:text-primary group">
-                                <span className="material-symbols-outlined text-2xl mb-2 group-hover:scale-110 transition-transform">assessment</span>
-                                <span className="text-xs font-medium text-center">Reports</span>
-                            </button>
-                            <Link to="/lecturer/settings" className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-200 hover:border-primary hover:bg-green-50/50 transition-all text-gray-600 hover:text-primary group">
-                                <span className="material-symbols-outlined text-2xl mb-2 group-hover:scale-110 transition-transform">settings</span>
-                                <span className="text-xs font-medium text-center">Settings</span>
-                            </Link>
-                        </div>
-                    </div>
+                    </aside>
                 </div>
             </div>
-        </div>
         </DashboardLayout>
     );
 };

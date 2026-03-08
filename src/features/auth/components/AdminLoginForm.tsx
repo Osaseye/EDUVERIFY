@@ -1,39 +1,37 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../store/useAuthStore';
+import { authService } from '../../../services/authService';
+import { toast } from 'sonner';
 
 export const AdminLoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  
+
   const navigate = useNavigate();
-  const setUser = useAuthStore(state => state.setUser);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    // Simulate API call
-    setTimeout(() => {
-      // Basic mock check for admin credentials
-      if (email.toLowerCase() === 'admin@eduverify.com') {
-          const dummyUser = {
-            uid: 'admin-123',
-            name: 'Super Admin',
-            email,
-            role: 'admin'
-          } as any;
-          
-          setUser(dummyUser);
-          navigate('/admin/dashboard');
-      } else {
-         setError('Invalid admin credentials. (Hint: Use admin@eduverify.com)');
-         setIsLoading(false);
+    try {
+      const user = await authService.loginWithEmail(email, password);
+      if (user.role !== 'admin') {
+        // Sign out if not admin
+        await authService.logoutUser();
+        throw new Error('Access denied. Invalid admin credentials.');
       }
-    }, 1500);
+      toast.success('Admin login successful!');
+      navigate('/admin/dashboard');
+    } catch (err: any) {
+      console.error('Admin login error:', err);
+      setError(err.message || 'Failed to sign in.');
+      toast.error('Login failed.');
+      setIsLoading(false);
+    }
   };
 
   return (

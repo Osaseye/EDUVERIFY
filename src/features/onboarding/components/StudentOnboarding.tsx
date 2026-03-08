@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Webcam from 'react-webcam';
+import * as faceapi from 'face-api.js';
 import { useAuthStore } from '../../../store/useAuthStore';
+import { userService } from '../../../services/userService';
+import { toast } from 'sonner';
 
 type OnboardingStep = 'personal' | 'academic' | 'face';
 
@@ -9,28 +12,56 @@ export const StudentOnboarding = () => {
     const { user, setUser } = useAuthStore();
     const navigate = useNavigate();
     const [step, setStep] = useState<OnboardingStep>('personal');
-    
+
     // Form state
     const [phone, setPhone] = useState('');
     const [dob, setDob] = useState('');
     const [gender, setGender] = useState('');
     const [address, setAddress] = useState('');
-    
+
     // Academic details
     const [matricNumber, setMatricNumber] = useState('');
-    const [faculty, setFaculty] = useState('');
     const [department, setDepartment] = useState('');
     const [level, setLevel] = useState('');
     const [group, setGroup] = useState('');
-    const [yearOfAdmission, setYearOfAdmission] = useState('');
 
     const [faceCaptured, setFaceCaptured] = useState(false);
+    const [faceDescriptor, setFaceDescriptor] = useState<number[] | null>(null);
+    const [modelsLoaded, setModelsLoaded] = useState(false);
+    const [isCapturing, setIsCapturing] = useState(false);
 
     const webcamRef = React.useRef<Webcam>(null);
 
+    useEffect(() => {
+        const loadModels = async () => {
+            try {
+                await Promise.all([
+                    faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
+                    faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
+                    faceapi.nets.faceRecognitionNet.loadFromUri('/models')
+                ]);
+                setModelsLoaded(true);
+            } catch (err) {
+                console.error('Error loading face-api models', err);
+            }
+        };
+        loadModels();
+    }, []);
+
     const handleNext = () => {
-        if (step === 'personal') setStep('academic');
-        else if (step === 'academic') setStep('face');
+        if (step === 'personal') {
+            if (!phone || !dob || !gender || !address) {
+                toast.error('Please fill in all personal details.');
+                return;
+            }
+            setStep('academic');
+        } else if (step === 'academic') {
+            if (!matricNumber || !department || !level || !group) {
+                toast.error('Please fill in all academic details.');
+                return;
+            }
+            setStep('face');
+        }
     };
 
     const handleBack = () => {
@@ -38,20 +69,71 @@ export const StudentOnboarding = () => {
         else if (step === 'academic') setStep('personal');
     };
 
-    const captureFace = React.useCallback(() => {
-        const imageSrc = webcamRef.current?.getScreenshot();
-        if (imageSrc) {
-            // In a real app, you'd send this to your API/FaceAPI
-            setFaceCaptured(true);
+    const captureFace = async () => {
+        if (!webcamRef.current?.video || !modelsLoaded) {
+            if (!modelsLoaded) toast.error('Models are still loading, please wait...');
+            return;
         }
-    }, [webcamRef]);
 
-    const handleFinish = () => {
-        // Here you would save the profile data + face descriptor to Firebase
-        if (user) {
-            setUser({ ...user, enrolledFaceId: 'some-face-descriptor-id' });
+        setIsCapturing(true);
+        const toastId = toast.loading('Analyzing face...');
+        
+        try {
+            const video = webcamRef.current.video;
+            const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 }))
+                .withFaceLandmarks()
+                .withFaceDescriptor();
+                
+            if (detection) {
+                setFaceDescriptor(Array.from(detection.descriptor));
+                setFaceCaptured(true);
+                toast.success('Face registered successfully!', { id: toastId });
+            } else {
+                toast.error('No face detected. Please ensure your face is clearly visible and well-lit.', { id: toastId });
+            }
+        } catch (error) {
+            console.error('Face capture error:', error);
+            toast.error('Error capturing face. Please try again.', { id: toastId });
+        } finally {
+            setIsCapturing(false);
         }
-        navigate('/student/dashboard');
+    };
+
+    const handleFinish = async () => {
+        if (!user) return;
+        
+        if (!faceDescriptor || !faceCaptured) {
+            toast.error('Please capture your face before finishing.');
+            return;
+        }
+
+        try {
+            const updateData = {
+                profile: {
+                    phone,
+                    dob,
+                    gender,
+                    address,
+                    matricNumber,
+                    department,
+                    level,
+                    group,
+                },
+                enrolledFaceId: 'true', // We also save the actual descriptor via saveFaceDescriptor
+            };
+
+            // Save actual face descriptor to user document
+            await userService.saveFaceDescriptor(user.uid, faceDescriptor);
+            // Update the rest of the profile
+            await userService.updateUser(user.uid, updateData);
+            
+            setUser({ ...user, ...updateData });
+            toast.success('Onboarding completed successfully!');
+            navigate('/student/dashboard');
+        } catch (error: any) {
+            console.error('Error saving profile:', error);
+            toast.error(error.message || 'Failed to save profile. Please try again.');
+        }
     };
 
     return (
@@ -133,20 +215,38 @@ export const StudentOnboarding = () => {
                                 <select value={department} onChange={(e) => setDepartment(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all bg-white">
                                     <option value="" disabled>Select Department</option>
                                     <option value="Computer Science">Computer Science</option>
-                                    <option value="Engineering">Engineering</option>
-                                    <option value="Business">Business</option>
+                                    <option value="Software Engineering">Software Engineering</option>
+                                    <option value="Information Technology">Information Technology</option>
+                                    <option value="Electrical Engineering">Electrical Engineering</option>
+                                    <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                    <option value="Civil Engineering">Civil Engineering</option>
+                                    <option value="Chemical Engineering">Chemical Engineering</option>
+                                    <option value="Business Administration">Business Administration</option>
+                                    <option value="Accounting">Accounting</option>
+                                    <option value="Economics">Economics</option>
+                                    <option value="Mass Communication">Mass Communication</option>
+                                    <option value="Law">Law</option>
+                                    <option value="Medicine">Medicine</option>
+                                    <option value="Nursing">Nursing</option>
+                                    <option value="Pharmacy">Pharmacy</option>
                                     <option value="Arts">Arts</option>
+                                    <option value="Education">Education</option>
                                 </select>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-text-light mb-1">Level / Year</label>
                                 <select value={level} onChange={(e) => setLevel(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all bg-white">
-                                    <option value="" disabled>Select Year</option>
+                                    <option value="" disabled>Select Level</option>
                                     <option value="100">100 Level</option>
                                     <option value="200">200 Level</option>
                                     <option value="300">300 Level</option>
                                     <option value="400">400 Level</option>
                                     <option value="500">500 Level</option>
+                                    <option value="600">600 Level</option>
+                                    <option value="700">700 Level</option>
+                                    <option value="Postgraduate">Postgraduate</option>
+                                    <option value="Masters">Masters</option>
+                                    <option value="PhD">PhD</option>
                                 </select>
                             </div>
                             <div>
@@ -156,6 +256,10 @@ export const StudentOnboarding = () => {
                                     <option value="Group A">Group A</option>
                                     <option value="Group B">Group B</option>
                                     <option value="Group C">Group C</option>
+                                    <option value="Group D">Group D</option>
+                                    <option value="Group E">Group E</option>
+                                    <option value="Group F">Group F</option>
+                                    <option value="None">None</option>
                                 </select>
                             </div>
                         </div>
@@ -194,9 +298,17 @@ export const StudentOnboarding = () => {
 
                             {!faceCaptured ? (
                                 <div className="flex justify-center">
-                                    <button onClick={captureFace} className="bg-primary text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-opacity-90 flex items-center gap-2">
-                                        <span className="material-symbols-outlined">photo_camera</span>
-                                        Capture Face Data
+                                    <button 
+                                        onClick={captureFace} 
+                                        disabled={isCapturing || !modelsLoaded}
+                                        className={`bg-primary text-white px-6 py-3 rounded-full font-bold shadow-lg flex items-center gap-2 transition-all ${isCapturing || !modelsLoaded ? 'opacity-70 cursor-not-allowed' : 'hover:bg-opacity-90'}`}
+                                    >
+                                        {isCapturing ? (
+                                            <span className="material-symbols-outlined animate-spin">sync</span>
+                                        ) : (
+                                            <span className="material-symbols-outlined">photo_camera</span>
+                                        )}
+                                        {isCapturing ? 'Analyzing Face...' : (!modelsLoaded ? 'Loading Models...' : 'Capture Face Data')}
                                     </button>
                                 </div>
                             ) : (
