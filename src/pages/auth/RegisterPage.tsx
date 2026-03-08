@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
-import { useAuthStore } from '../../store/useAuthStore';
 import { authService } from '../../services/authService';
 import { toast } from 'sonner';
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useQuery } from '@tanstack/react-query';
 import { classService } from '../../../services/classService';

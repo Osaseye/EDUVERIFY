@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
 import { attendanceService } from '../../../services/attendanceService';
@@ -18,7 +18,7 @@ export const AttendanceHistoryPage = () => {
 
     const { data: classes = [], isLoading: isLoadingClasses } = useQuery({
         queryKey: ['student-my-classes', user?.uid],
-        queryFn: () => classService.getStudentClasses(user!.uid),
+        queryFn: () => classService.getClassesByStudent(user!.uid),
         enabled: !!user?.uid
     });
 
@@ -51,15 +51,15 @@ export const AttendanceHistoryPage = () => {
             if (record.timestamp?.seconds) {
                 dateStr = format(new Date(record.timestamp.seconds * 1000), 'MMM dd, yyyy');
                 timeStr = format(new Date(record.timestamp.seconds * 1000), 'hh:mm a');
-            } else if (record.createdAt) {
-                dateStr = format(new Date(record.createdAt), 'MMM dd, yyyy');
-                timeStr = format(new Date(record.createdAt), 'hh:mm a');
+            } else if ((record as any).createdAt) {
+                dateStr = format(new Date((record as any).createdAt), 'MMM dd, yyyy');
+                timeStr = format(new Date((record as any).createdAt), 'hh:mm a');
             }
             
             return {
                 id: record.id,
                 date: dateStr,
-                course: course?.name || course?.courseName || course?.code || `Course (${session?.classId || '...'})`,
+                course: course?.name || course?.code || `Course (${session?.classId || '...'})`,
                 time: timeStr,
                 type: record.verificationMethod === 'face' ? 'Face ID' : record.verificationMethod === 'qr' ? 'QR Code' : 'Manual',
                 status: record.status ? record.status.charAt(0).toUpperCase() + record.status.slice(1) : 'Present',

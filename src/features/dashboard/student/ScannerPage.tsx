@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Webcam from 'react-webcam';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
 import { Html5Qrcode } from 'html5-qrcode';
@@ -35,7 +35,7 @@ export const ScannerPage = () => {
                     fps: 10,
                     qrbox: { width: 250, height: 250 },
                 },
-                async (decodedText, _decodedResult) => {
+                async (decodedText: string, _decodedResult: any) => {
                     try {
                         const payload = JSON.parse(decodedText);
                         if (!payload.sessionId) {
@@ -58,7 +58,8 @@ export const ScannerPage = () => {
                         console.error('Failed to parse or mark attendance:', error);
                         toast.error('Failed to mark attendance. Invalid QR code or session.');
                     }
-                }
+                },
+                undefined
             ).catch((err) => {
                 console.error("Error starting scanner", err);
                 toast.error('Failed to start camera. Please check permissions.');

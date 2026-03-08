@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -186,7 +186,7 @@ export const LecturerClassDetailsPage = () => {
                                     ) : (
                                         <ul className="divide-y divide-emerald-50">
                                             {liveRecords.map(record => {
-                                                const student = students.find(s => s.id === record.userId);
+                                                const student = students.find(s => s.uid === record.userId);
                                                 return (
                                                     <li key={record.id} className="p-3 px-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
                                                         <div className="flex items-center gap-3">

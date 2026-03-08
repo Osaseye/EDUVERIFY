@@ -1,5 +1,5 @@
 import { db } from '../config/firebase';
-import { collection, doc, addDoc, getDoc, getDocs, updateDoc, deleteDoc, query, where, serverTimestamp, onSnapshot } from 'firebase/firestore';
+import { collection, doc, addDoc, getDoc, getDocs, updateDoc, query, where, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import type { AttendanceSession, AttendanceRecord } from '../types';
 
 const SESSIONS_COLLECTION = 'sessions';

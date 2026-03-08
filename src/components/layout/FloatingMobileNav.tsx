@@ -1,4 +1,3 @@
-import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuthStore } from '../../store/useAuthStore';
 
@@ -71,7 +70,7 @@ export const FloatingMobileNav = () => {
                                 }`;
                             }}
                         >
-                            {({ isActive }) => (
+                            {() => (
                                 <>
                                     <span className={`material-symbols-outlined ${item.main ? 'text-2xl' : 'text-xl'}`}>
                                         {item.icon}

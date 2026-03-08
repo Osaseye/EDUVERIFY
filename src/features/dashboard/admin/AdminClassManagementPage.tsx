@@ -1,8 +1,6 @@
-import React from 'react';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
 import { useQuery } from '@tanstack/react-query';
 import { classService } from '../../../services/classService';
-import type { ClassGroup } from '../../../types';
 
 export const AdminClassManagementPage = () => {
     const { data: classes = [], isLoading } = useQuery({
@@ -41,7 +39,7 @@ export const AdminClassManagementPage = () => {
                                     </span>
                                 </div>
 
-                                <h3 className="text-lg font-bold text-gray-900 leading-tight">{cls.name || cls.title}</h3>
+                                <h3 className="text-lg font-bold text-gray-900 leading-tight">{cls.name}</h3>
                                 <p className="text-sm font-medium text-gray-500 mb-4">{cls.code}</p>
 
                                 <div className="mt-auto space-y-2 pt-4 border-t border-gray-100">

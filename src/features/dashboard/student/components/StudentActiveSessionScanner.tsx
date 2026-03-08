@@ -64,7 +64,7 @@ export const StudentActiveSessionScanner: React.FC<StudentActiveSessionScannerPr
             if (!session) throw new Error("Session not found.");
 
             // Get user's location
-            const userLocation: { latitude: number, longitude: number } = await new Promise((resolve, reject) => {
+            const userLocation: { latitude: number, longitude: number } = await new Promise((resolve, _reject) => {
                 if (!navigator.geolocation) {
                     resolve({ latitude: 0, longitude: 0 }); // Fallback if not supported
                 } else {

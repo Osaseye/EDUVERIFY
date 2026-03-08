@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
 import { useQuery } from '@tanstack/react-query';
@@ -84,8 +84,8 @@ export const ClassDetailsPage = () => {
             let sessionDate = 'Unknown Date';
             let sessionTime = 'Started';
             
-            if (session.createdAt) {
-                const dateObj = new Date(session.createdAt);
+            if ((session as any).createdAt) {
+                const dateObj = new Date((session as any).createdAt);
                 sessionDate = format(dateObj, 'MMM dd, yyyy');
                 sessionTime = format(dateObj, 'hh:mm a');
             } else if (session.startTime) {
@@ -105,7 +105,7 @@ export const ClassDetailsPage = () => {
                 record: record || null,
                 displayDate: sessionDate,
                 displayTime: sessionTime,
-                sortDate: session.createdAt ? new Date(session.createdAt).getTime() : 0
+                sortDate: (session as any).createdAt ? new Date((session as any).createdAt).getTime() : 0
             };
         }).sort((a, b) => b.sortDate - a.sortDate); // newest first
 

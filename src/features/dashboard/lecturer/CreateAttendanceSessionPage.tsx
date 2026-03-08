@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { attendanceService } from '../../../services/attendanceService';
@@ -38,9 +38,11 @@ export const CreateAttendanceSessionPage = () => {
 
         const createWithLocation = async (latitude: number = 0, longitude: number = 0) => {
             try {
-                const sessionId = await attendanceService.createSession({
+                await attendanceService.createSession({
                     classId,
                     createdBy: user.uid,
+                    startTime: new Date(),
+                    endTime: null,
                     geofenceRadius: 100, // 100 meters
                     location: { latitude, longitude },
                     qrCodeToken: crypto.randomUUID() // initial token

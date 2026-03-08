@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
 import { useAuthStore } from '../../../store/useAuthStore';
@@ -51,7 +51,7 @@ export const LecturerAttendanceTrackingPage = () => {
         }
 
         const reportData = selectedClass.studentIds.map(studentId => {
-            const student = students.find(s => s.id === studentId);
+            const student = students.find(s => s.uid === studentId);
             const totalSessions = sessions.length;
             const attendedSessions = allRecords.filter(r => r.userId === studentId).length;
             const rate = totalSessions > 0 ? Math.round((attendedSessions / totalSessions) * 100) : 0;
@@ -155,7 +155,7 @@ export const LecturerAttendanceTrackingPage = () => {
                                 )}
 
                                 {selectedClassId && selectedClass?.studentIds?.map((studentId) => {
-                                    const student = students.find(s => s.id === studentId);
+                                    const student = students.find(s => s.uid === studentId);
                                     
                                     // Calculate rates
                                     const totalSessions = sessions.length;

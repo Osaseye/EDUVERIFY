@@ -5,7 +5,7 @@ import {
   sendPasswordResetEmail,
   getAuth
 } from 'firebase/auth';
-import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeApp, getApps } from 'firebase/app';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db, firebaseConfig } from '../config/firebase';
 import type { User, UserRole } from '../types';
