@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { userService } from '../../../services/userService';
 import { classService } from '../../../services/classService';
-import { attendanceService } from '../../../services/attendanceService';
 
 export const AdminDashboard = () => {
   const { user } = useAuthStore();

@@ -27,8 +27,6 @@ export const StudentDashboard = () => {
     useEffect(() => {
         if (!myClasses.length) return;
         let active = 0;
-        let totalSessionsCount = 0;
-        let checkedInSessionsCount = myRecords.length; // Approximate: in production you may compare session IDs
         
         myClasses.forEach(cls => {
             const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
