@@ -33,6 +33,7 @@ export const StudentOnboarding = () => {
     const webcamRef = React.useRef<Webcam>(null);
 
     useEffect(() => {
+        if (step !== 'face') return;
         const loadModels = async () => {
             try {
                 await Promise.all([
@@ -45,8 +46,10 @@ export const StudentOnboarding = () => {
                 console.error('Error loading face-api models', err);
             }
         };
-        loadModels();
-    }, []);
+        if (!modelsLoaded) {
+            loadModels();
+        }
+    }, [step, modelsLoaded]);
 
     const handleNext = () => {
         if (step === 'personal') {

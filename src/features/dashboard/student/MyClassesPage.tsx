@@ -1,18 +1,39 @@
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useQuery } from '@tanstack/react-query';
 import { classService } from '../../../services/classService';
+import { attendanceService } from '../../../services/attendanceService';
 
 export const MyClassesPage = () => {
     const navigate = useNavigate();
     const { user } = useAuthStore();
+    const [activeClasses, setActiveClasses] = useState<Record<string, boolean>>({});
 
     const { data: classes = [], isLoading } = useQuery({
         queryKey: ['student-classes', user?.uid],
         queryFn: () => classService.getClassesByStudent(user!.uid),
         enabled: !!user?.uid
     });
+
+    useEffect(() => {
+        if (classes.length > 0) {
+            const checkActiveSessions = async () => {
+                const results: Record<string, boolean> = {};
+                for (const cls of classes) {
+                    try {
+                        const session = await attendanceService.getActiveSession(cls.id);
+                        results[cls.id] = !!session;
+                    } catch (e) {
+                        results[cls.id] = false;
+                    }
+                }
+                setActiveClasses(results);
+            };
+            checkActiveSessions();
+        }
+    }, [classes]);
 
     return (
         <DashboardLayout>
@@ -37,15 +58,13 @@ export const MyClassesPage = () => {
                             onClick={() => navigate(`/student/classes/${cls.id}`)}
                             className="rounded-xl border border-slate-200 bg-surface-light p-6 shadow-sm hover:shadow-md hover:border-primary/50 cursor-pointer transition-all flex flex-col group relative overflow-hidden"
                         >
-                        {/* @ts-ignore */}
-                        {cls.isSessionOpen && (
+                        {activeClasses[cls.id] && (
                             <div className="absolute top-[1rem] right-[-2rem] bg-emerald-500 text-white text-[10px] font-bold py-1 px-8 rotate-45 shadow-sm">
                                 LIVE
                             </div>
                         )}
                         <div className="flex justify-between items-start mb-4">
-                            {/* @ts-ignore */}
-                            <span className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors ${cls.isSessionOpen ? 'bg-emerald-100 text-emerald-700' : 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white'}`}>
+                            <span className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors ${activeClasses[cls.id] ? 'bg-emerald-100 text-emerald-700' : 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white'}`}>
                                 {cls.code}
                             </span>
                             <button 

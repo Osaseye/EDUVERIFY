@@ -45,3 +45,11 @@ service cloud.firestore {
       // A student can create their own record, or an admin can
       allow create: if isAuthenticated() && (request.auth.uid == request.resource.data.userId || isAdmin());
       allow update, delete: if isAdmin();
+    }
+    
+    match /settings/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+  }
+}

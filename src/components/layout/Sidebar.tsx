@@ -47,14 +47,14 @@ export const Sidebar = () => {
         : studentNavItems;
 
     return (
-        <aside className="hidden w-64 overflow-y-auto border-r border-slate-200 bg-surface-light md:block flex-shrink-0">
-            <div className="flex h-16 items-center justify-center border-b border-slate-200 px-6">
+        <aside className="hidden w-64 flex-col h-full border-r border-slate-200 bg-surface-light md:flex flex-shrink-0">
+            <div className="flex h-16 items-center justify-center border-b border-slate-200 px-6 shrink-0">
                 <div className="flex items-center gap-2 font-bold text-xl text-primary">
                     <img src="/icon.png" alt="EduVerify" className="h-8 w-8 object-contain" />
                     <span>EduVerify</span>
                 </div>
             </div>
-            <div className="px-4 py-6">
+            <div className="flex-1 overflow-y-auto px-4 py-6">
                 <nav className="space-y-1">
                     {navItems.map((item) => (
                         <NavLink

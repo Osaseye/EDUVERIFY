@@ -183,6 +183,7 @@ export const StudentActiveSessionScanner: React.FC<StudentActiveSessionScannerPr
     // Setup QR Scanner
     useEffect(() => {
         let html5QrCode: Html5Qrcode | null = null;
+        let isScanning = true;
 
         if (mode === 'qr' && status === 'scanning') {
             html5QrCode = new Html5Qrcode('reader');
@@ -193,6 +194,7 @@ export const StudentActiveSessionScanner: React.FC<StudentActiveSessionScannerPr
             };
 
             const onScanSuccess = async (decodedText: string, _decodedResult: any) => {
+                if (!isScanning) return;
                 try {
                     const payload = JSON.parse(decodedText);
                     // Prevent marking for different session
@@ -200,8 +202,10 @@ export const StudentActiveSessionScanner: React.FC<StudentActiveSessionScannerPr
                         throw new Error('Invalid QR code for this session.');
                     }
                     
+                    isScanning = false;
+                    
                     // Stop scanner as soon as a code is scanned to avoid double scanning
-                    if (html5QrCode?.isScanning) {
+                    if (html5QrCode && html5QrCode.isScanning) {
                         await html5QrCode.stop().catch(console.error);
                     }
 
@@ -222,9 +226,11 @@ export const StudentActiveSessionScanner: React.FC<StudentActiveSessionScannerPr
                 try {
                     // Try environment/rear camera first
                     await new Promise(resolve => setTimeout(resolve, 200)); // Ensure DOM is painted
+                    if (!isScanning) return;
                     await html5QrCode!.start({ facingMode: 'environment' }, config, onScanSuccess, onScanFailure);
                 } catch (err) {
                     console.log("Environment camera failed, falling back to user camera:", err);
+                    if (!isScanning) return;
                     try {
                         // Fallback to user/front camera (mostly for desktops/laptops)
                         await html5QrCode!.start({ facingMode: 'user' }, config, onScanSuccess, onScanFailure);
@@ -240,11 +246,13 @@ export const StudentActiveSessionScanner: React.FC<StudentActiveSessionScannerPr
         }
 
         return () => {
+            isScanning = false;
             if (html5QrCode && html5QrCode.isScanning) {
-                html5QrCode.stop().catch(console.error);
+                html5QrCode.stop().then(() => html5QrCode?.clear()).catch(console.error);
             }
         };
-    }, [mode, status, user, sessionId, onSuccess]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [mode, status]);
 
     const resetScan = () => {
         setMode('options');

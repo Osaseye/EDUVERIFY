@@ -28,7 +28,8 @@ export const RoleGuard = ({ allowedRoles }: RoleGuardProps) => {
     // You could redirect to a dedicated "unauthorized" page
     // For now, redirect to their dashboard based on role? Or just login.
     console.warn(`User role ${user.role} not allowed for this route. Needed: ${allowedRoles.join(', ')}`);
-    return <Navigate to="/" replace />;
+    const dashboardRoute = user.role === 'admin' ? '/admin/dashboard' : (user.role === 'lecturer' ? '/lecturer/dashboard' : '/student/dashboard');
+    return <Navigate to={dashboardRoute} replace />;
   }
 
   // Check if student has completed onboarding

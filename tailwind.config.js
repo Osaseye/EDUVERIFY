@@ -8,6 +8,7 @@ export default {
     extend: {
       colors: {
         primary: "#0F7B6C", // Deep Emerald Green
+        "primary-hover": "#0B6357",
         secondary: "#14B8A6", // Teal
         "background-light": "#F9FAFB",
         "background-dark": "#111827",

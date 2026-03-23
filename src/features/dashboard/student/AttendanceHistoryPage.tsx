@@ -34,10 +34,12 @@ export const AttendanceHistoryPage = () => {
         }
     }, [classes]);
 
+    const [sortAsc, setSortAsc] = useState(false);
+
     const history = useMemo(() => {
         if (!records.length) return [];
         
-        return records.map(record => {
+        const data = records.map(record => {
             const session = allSessions.find(s => s.id === record.sessionId);
             let course = classes.find(c => c.id === session?.classId);
             
@@ -65,8 +67,26 @@ export const AttendanceHistoryPage = () => {
                 status: record.status ? record.status.charAt(0).toUpperCase() + record.status.slice(1) : 'Present',
                 rawDate: record.timestamp?.seconds || 0
             };
-        }).sort((a, b) => b.rawDate - a.rawDate);
-    }, [records, classes, allSessions]);
+        });
+        
+        return data.sort((a, b) => sortAsc ? a.rawDate - b.rawDate : b.rawDate - a.rawDate);
+    }, [records, classes, allSessions, sortAsc]);
+
+    const handleExport = () => {
+        if (!history.length) return;
+        const headers = ["Date", "Course", "Time Logged", "Verification Method", "Status"];
+        const rows = history.map(r => [r.date, r.course, r.time, r.type, r.status]);
+        const csvContent = "data:text/csv;charset=utf-8," 
+            + headers.join(",") + "\n" 
+            + rows.map(e => e.map(f => `"${f}"`).join(",")).join("\n");
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "attendance_history.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     // Check loading
     const isLoading = isLoadingRecords || isLoadingClasses;
@@ -80,11 +100,11 @@ export const AttendanceHistoryPage = () => {
                     <p className="text-slate-600">Review your past attendance records and verification methods.</p>
                 </div>
                 <div className="flex gap-2">
-                    <button className="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
+                    <button onClick={() => setSortAsc(!sortAsc)} className="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
                         <span className="material-icons-round text-base">filter_list</span>
-                        Filter
+                        Sort {sortAsc ? 'Newest' : 'Oldest'}
                     </button>
-                    <button className="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
+                    <button onClick={handleExport} className="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
                         <span className="material-icons-round text-base">file_download</span>
                         Export
                     </button>

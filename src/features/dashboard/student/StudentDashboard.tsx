@@ -1,18 +1,61 @@
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useQuery } from '@tanstack/react-query';
 import { classService } from '../../../services/classService';
+import { attendanceService } from '../../../services/attendanceService';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 export const StudentDashboard = () => {
     const { user } = useAuthStore();
     const navigate = useNavigate();
+    const [attendanceRate, setAttendanceRate] = useState<string>("0%");
+    const [classesToday, setClassesToday] = useState<number>(0);
 
     const { data: myClasses = [], isLoading } = useQuery({
         queryKey: ['student-classes', user?.uid],
         queryFn: () => classService.getClassesByStudent(user?.uid || ''),
         enabled: !!user?.uid
     });
+
+    const { data: myRecords = [] } = useQuery({
+        queryKey: ['student-records', user?.uid],
+        queryFn: () => attendanceService.getRecordsByStudentId(user!.uid),
+        enabled: !!user?.uid
+    });
+
+    useEffect(() => {
+        if (!myClasses.length) return;
+        let active = 0;
+        let totalSessionsCount = 0;
+        let checkedInSessionsCount = myRecords.length; // Approximate: in production you may compare session IDs
+        
+        myClasses.forEach(cls => {
+            const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+            if (cls.scheduleDays?.includes(today)) {
+                active++;
+            }
+            // Ideally we'd fetch total sessions for every class
+        });
+        setClassesToday(active);
+        
+        // Mock attendance rate: ratio of checked in vs 10 * class length or just some mock logic that isn't completely hardcoded to 100%
+        // Actually, we can fetch all sessions for all classes just like `AttendanceHistoryPage` does.
+        const fetchAllSessions = async () => {
+            const sessionsPromises = myClasses.map(cls => attendanceService.getSessionsByClassId(cls.id));
+            const sessionsResults = await Promise.all(sessionsPromises);
+            const allSessions = sessionsResults.flat();
+            
+            if (allSessions.length > 0) {
+                const attended = myRecords.filter(r => allSessions.some(s => s.id === r.sessionId)).length;
+                const rate = Math.round((attended / allSessions.length) * 100);
+                setAttendanceRate(`${rate}%`);
+            } else {
+                setAttendanceRate('100%');
+            }
+        };
+        fetchAllSessions();
+    }, [myClasses, myRecords]);
 
     const recentActivity = myClasses.length > 0 ? myClasses.slice(0, 3) : [];
 
@@ -56,7 +99,7 @@ export const StudentDashboard = () => {
                         </div>
                         <div>
                             <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Attendance Rate</p>
-                            <p className="text-3xl font-black text-slate-800">100%</p>
+                            <p className="text-3xl font-black text-slate-800">{attendanceRate}</p>
                         </div>
                     </div>
 
@@ -66,7 +109,7 @@ export const StudentDashboard = () => {
                         </div>
                         <div>
                             <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Classes Today</p>
-                            <p className="text-3xl font-black text-slate-800">0</p>
+                            <p className="text-3xl font-black text-slate-800">{classesToday}</p>
                         </div>
                     </div>
                 </div>
@@ -124,7 +167,7 @@ export const StudentDashboard = () => {
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium text-slate-800">Enrolled in {cls.name}</p>
-                                                <p className="text-xs text-slate-500">{new Date(cls.createdAt || Date.now()).toLocaleDateString()}</p>
+                                                <p className="text-xs text-slate-500">{new Date(cls.createdAt?.seconds ? cls.createdAt.seconds * 1000 : cls.createdAt || Date.now()).toLocaleDateString()}</p>
                                             </div>
                                         </div>
                                     ))}

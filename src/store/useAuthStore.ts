@@ -14,7 +14,7 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
-      loading: false, // Set to false since we aren't fetching asynchronously on load yet
+      loading: true, // Init to true to prevent bad redirects before auth resolves
       setUser: (user) => set({ user, loading: false }),
       setLoading: (loading) => set({ loading }),
       logout: () => set({ user: null, loading: false }),

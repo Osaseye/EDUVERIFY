@@ -21,15 +21,18 @@ export const ClassDetailsPage = () => {
     useEffect(() => {
         if (!classId) return;
 
+        let previousSessionId: string | null = null;
+
         const unsubscribe = attendanceService.subscribeToActiveSession(classId, async (session) => {
-            if (session && !activeSession) {
+            if (session && !previousSessionId) {
                 toast.info('An attendance session is now open for this class!');
             }
-            if (!session && activeSession) {
+            if (!session && previousSessionId) {
                 setIsJoining(false);
                 toast.info('The active attendance session has been closed.');
             }
             setActiveSession(session);
+            previousSessionId = session ? session.id : null;
             
             // Check if the student has already checked into this session
             if (session && user) {
@@ -46,7 +49,7 @@ export const ClassDetailsPage = () => {
         });
 
         return () => unsubscribe();
-    }, [classId, activeSession, user]);
+    }, [classId, user]);
 
     const { data: cls, isLoading } = useQuery({
         queryKey: ['class-details', classId],

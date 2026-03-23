@@ -1,11 +1,33 @@
 import { useAuthStore } from '../../../store/useAuthStore';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
 import { Link } from 'react-router-dom';
-
-const stats: any[] = [];
+import { useQuery } from '@tanstack/react-query';
+import { userService } from '../../../services/userService';
+import { classService } from '../../../services/classService';
+import { attendanceService } from '../../../services/attendanceService';
 
 export const AdminDashboard = () => {
   const { user } = useAuthStore();
+
+  const { data: users = [] } = useQuery({
+      queryKey: ['admin-users-all'],
+      queryFn: () => userService.getAllUsers()
+  });
+
+  const { data: classes = [] } = useQuery({
+      queryKey: ['admin-classes-all'],
+      queryFn: () => classService.getAllClasses()
+  });
+
+  const studentsCount = users.filter((u: any) => u.role === 'student').length;
+  const lecturersCount = users.filter((u: any) => u.role === 'lecturer').length;
+
+  const stats = [
+      { label: 'Total Students', value: studentsCount, icon: 'school', color: 'bg-blue-100 text-blue-600', trend: 'Active' },
+      { label: 'Total Lecturers', value: lecturersCount, icon: 'person', color: 'bg-blue-100 text-blue-600', trend: 'Active' },
+      { label: 'Active Classes', value: classes.length, icon: 'class', color: 'bg-green-100 text-green-600', trend: 'Global' },
+      { label: 'Total Users', value: users.length, icon: 'groups', color: 'bg-purple-100 text-purple-600', trend: 'Verified' },
+  ];
 
   return (
     <DashboardLayout>

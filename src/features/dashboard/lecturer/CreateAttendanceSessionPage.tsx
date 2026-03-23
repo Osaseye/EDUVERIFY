@@ -36,13 +36,15 @@ export const CreateAttendanceSessionPage = () => {
         
         setIsCreating(true);
 
+        const endTime = duration === '0' ? null : new Date(Date.now() + parseInt(duration) * 60000);
+
         const createWithLocation = async (latitude: number = 0, longitude: number = 0) => {
             try {
                 await attendanceService.createSession({
                     classId,
                     createdBy: user.uid,
                     startTime: new Date(),
-                    endTime: null,
+                    endTime: endTime,
                     geofenceRadius: 100, // 100 meters
                     location: { latitude, longitude },
                     qrCodeToken: crypto.randomUUID() // initial token

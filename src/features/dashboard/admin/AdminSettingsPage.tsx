@@ -1,9 +1,49 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '../../../config/firebase';
+import { toast } from 'sonner';
 
 export const AdminSettingsPage = () => {
     const [strictFaceAuth, setStrictFaceAuth] = useState(true);
     const [geofencing, setGeofencing] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const docRef = doc(db, 'settings', 'global');
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.strictFaceAuth !== undefined) setStrictFaceAuth(data.strictFaceAuth);
+                    if (data.geofencing !== undefined) setGeofencing(data.geofencing);
+                }
+            } catch (error) {
+                console.error("Error fetching settings:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchSettings();
+    }, []);
+
+    const updateSetting = async (key: string, value: boolean) => {
+        if (key === 'strictFaceAuth') setStrictFaceAuth(value);
+        if (key === 'geofencing') setGeofencing(value);
+        
+        try {
+            const docRef = doc(db, 'settings', 'global');
+            await setDoc(docRef, { [key]: value }, { merge: true });
+            toast.success('Setting updated successfully');
+        } catch (error) {
+            console.error("Error saving setting:", error);
+            toast.error('Failed to update setting');
+            // Revert on failure
+            if (key === 'strictFaceAuth') setStrictFaceAuth(!value);
+            if (key === 'geofencing') setGeofencing(!value);
+        }
+    };
 
     return (
         <DashboardLayout>
@@ -28,8 +68,9 @@ export const AdminSettingsPage = () => {
                                     <p className="text-sm text-gray-500 max-w-sm mt-1">Require 95%+ confidence score on model checks for successful marking.</p>
                                 </div>
                                 <button 
-                                    onClick={() => setStrictFaceAuth(!strictFaceAuth)}
-                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${strictFaceAuth ? 'bg-gray-900' : 'bg-gray-200'}`}
+                                    disabled={isLoading}
+                                    onClick={() => updateSetting('strictFaceAuth', !strictFaceAuth)}
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${strictFaceAuth ? 'bg-gray-900' : 'bg-gray-200'} ${isLoading ? 'opacity-50' : ''}`}
                                 >
                                     <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${strictFaceAuth ? 'translate-x-6' : 'translate-x-1'}`} />
                                 </button>
@@ -43,8 +84,9 @@ export const AdminSettingsPage = () => {
                                     <p className="text-sm text-gray-500 max-w-sm mt-1">Enforce location checks during attendance scanning.</p>
                                 </div>
                                 <button 
-                                    onClick={() => setGeofencing(!geofencing)}
-                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${geofencing ? 'bg-gray-900' : 'bg-gray-200'}`}
+                                    disabled={isLoading}
+                                    onClick={() => updateSetting('geofencing', !geofencing)}
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${geofencing ? 'bg-gray-900' : 'bg-gray-200'} ${isLoading ? 'opacity-50' : ''}`}
                                 >
                                     <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${geofencing ? 'translate-x-6' : 'translate-x-1'}`} />
                                 </button>

@@ -41,6 +41,16 @@ export const ScannerPage = () => {
                         if (!payload.sessionId) {
                             throw new Error('Invalid QR code');
                         }
+
+                        const session = await attendanceService.getSessionById(payload.sessionId);
+                        if (!session) {
+                            throw new Error('Session not found');
+                        }
+
+                        // If qrCodeToken is enforced in the payload, validate it here
+                        if (session.qrCodeToken && payload.token && session.qrCodeToken !== payload.token) {
+                            throw new Error('Invalid or expired QR code');
+                        }
                         
                         await attendanceService.markAttendance({
                             sessionId: payload.sessionId,

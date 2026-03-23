@@ -103,7 +103,7 @@ export const LecturerDashboard = () => {
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium text-slate-800">Created class {cls.name}</p>
-                                                <p className="text-xs text-slate-500">{new Date(cls.createdAt || Date.now()).toLocaleDateString()}</p>
+                                                <p className="text-xs text-slate-500">{new Date(cls.createdAt?.seconds ? cls.createdAt.seconds * 1000 : cls.createdAt || Date.now()).toLocaleDateString()}</p>
                                             </div>
                                         </div>
                                     ))}

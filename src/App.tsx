@@ -25,6 +25,8 @@ import { AdminAttendanceReportsPage } from './features/dashboard/admin/AdminAtte
 import { AdminSystemLogsPage } from './features/dashboard/admin/AdminSystemLogsPage';
 import { AdminSettingsPage } from './features/dashboard/admin/AdminSettingsPage';
 import { AdminLoginPage } from './pages/auth/AdminLoginPage';
+import { NotFoundPage } from './pages/NotFoundPage';
+import { ErrorBoundary } from './components/shared/ErrorBoundary';
 import { Toaster } from 'sonner';
 import { useAuthListener } from './hooks/useAuthListener';
 
@@ -32,9 +34,10 @@ function App() {
   useAuthListener();
 
   return (
-    <BrowserRouter>
-      <Toaster position="top-right" richColors />
-      <Routes>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <Toaster position="top-right" richColors />
+        <Routes>
         <Route path="/" element={<LandingPage />} />
         
         {/* Auth Routes */}
@@ -74,8 +77,12 @@ function App() {
           <Route path="/admin/logs" element={<AdminSystemLogsPage />} />
           <Route path="/admin/settings" element={<AdminSettingsPage />} />
         </Route>
+
+        {/* Catch-all 404 Route */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 
