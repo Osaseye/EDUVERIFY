@@ -1,16 +1,28 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { authService } from '../../services/authService';
+import { toast } from 'sonner';
 
 export const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const [isSent, setIsSent] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleReset = (e: React.FormEvent) => {
+  const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate send email
-    setTimeout(() => {
+    if (!email) return;
+    
+    setIsSubmitting(true);
+    try {
+      await authService.resetPassword(email);
       setIsSent(true);
-    }, 1000);
+      toast.success('Password reset email sent');
+    } catch (error: any) {
+      console.error('Error sending reset email:', error);
+      toast.error(error.message || 'Failed to send password reset email');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -64,9 +76,10 @@ export const ForgotPasswordPage = () => {
             <div>
               <button
                 type="submit"
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-md text-sm font-bold text-white bg-primary hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all"
+                disabled={isSubmitting}
+                className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-md text-sm font-bold text-white bg-primary hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
-                Send Reset Link
+                {isSubmitting ? 'Sending...' : 'Send Reset Link'}
               </button>
             </div>
           </form>
