@@ -106,5 +106,37 @@ export const userService = {
       console.error('Error getting face descriptor:', error);
       throw error;
     }
-  }
-};
+  },
+
+  // Check if a face descriptor already belongs to another user
+  checkDuplicateFace: async (newDescriptor: number[], excludeUserId: string): Promise<boolean> => {
+    try {
+      const q = query(collection(db, USERS_COLLECTION), where('role', '==', 'student'));
+      const querySnapshot = await getDocs(q);
+      
+      const MAX_DISTANCE = 0.45; // Strict threshold for duplication
+      const newDescFloat = new Float32Array(newDescriptor);
+
+      for (const docSnap of querySnapshot.docs) {
+         if (docSnap.id === excludeUserId) continue;
+
+         const data = docSnap.data();
+         if (data.faceDescriptor) {
+            const storedDescriptor = new Float32Array(data.faceDescriptor);
+            
+            let distance = 0;
+            for (let i = 0; i < storedDescriptor.length; i++) {
+                distance += Math.pow(storedDescriptor[i] - newDescFloat[i], 2);
+            }
+            distance = Math.sqrt(distance);
+            
+            if (distance < MAX_DISTANCE) {
+                return true; // Duplicate found
+            }
+         }
+      }
+      return false;
+    } catch (error) {
+      console.error('Error checking duplicate face:', error);
+      throw error;
+    }

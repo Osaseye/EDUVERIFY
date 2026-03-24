@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Webcam from 'react-webcam';
 import * as faceapi from 'face-api.js';
 import { useAuthStore } from '../../../store/useAuthStore';
@@ -11,19 +11,24 @@ type OnboardingStep = 'personal' | 'academic' | 'face';
 export const StudentOnboarding = () => {
     const { user, setUser } = useAuthStore();
     const navigate = useNavigate();
-    const [step, setStep] = useState<OnboardingStep>('personal');
+    const location = useLocation();
+    
+    // Check if this is just a retake for face
+    const isRetake = new URLSearchParams(location.search).get('retake') === 'true';
+    
+    const [step, setStep] = useState<OnboardingStep>(isRetake ? 'face' : 'personal');
 
     // Form state
-    const [phone, setPhone] = useState('');
-    const [dob, setDob] = useState('');
-    const [gender, setGender] = useState('');
-    const [address, setAddress] = useState('');
+    const [phone, setPhone] = useState(user?.profile?.phone || '');
+    const [dob, setDob] = useState(user?.profile?.dob || '');
+    const [gender, setGender] = useState(user?.profile?.gender || '');
+    const [address, setAddress] = useState(user?.profile?.address || '');
 
     // Academic details
-    const [matricNumber, setMatricNumber] = useState('');
-    const [department, setDepartment] = useState('');
-    const [level, setLevel] = useState('');
-    const [group, setGroup] = useState('');
+    const [matricNumber, setMatricNumber] = useState(user?.profile?.matricNumber || '');
+    const [department, setDepartment] = useState(user?.profile?.department || '');
+    const [level, setLevel] = useState(user?.profile?.level || '');
+    const [group, setGroup] = useState(user?.profile?.group || '');
 
     const [faceCaptured, setFaceCaptured] = useState(false);
     const [faceDescriptor, setFaceDescriptor] = useState<number[] | null>(null);
@@ -57,10 +62,20 @@ export const StudentOnboarding = () => {
                 toast.error('Please fill in all personal details.');
                 return;
             }
+            // Basic phone validation
+            if (!/^\+?[\d\s-]{10,15}$/.test(phone)) {
+                toast.error('Please enter a valid phone number (10-15 digits).');
+                return;
+            }
             setStep('academic');
         } else if (step === 'academic') {
             if (!matricNumber || !department || !level || !group) {
                 toast.error('Please fill in all academic details.');
+                return;
+            }
+            // Basic matriculation number validation
+            if (matricNumber.length < 5 || !/^[a-zA-Z0-9/-]+$/.test(matricNumber)) {
+                toast.error('Please enter a valid matriculation number.');
                 return;
             }
             setStep('face');
@@ -104,13 +119,23 @@ export const StudentOnboarding = () => {
 
     const handleFinish = async () => {
         if (!user) return;
-        
+
         if (!faceDescriptor || !faceCaptured) {
             toast.error('Please capture your face before finishing.');
             return;
         }
 
+        const loadingToast = toast.loading('Saving profile and verifying face data...');
+
         try {
+            // Check for duplicate face registrations
+            const isDuplicate = await userService.checkDuplicateFace(faceDescriptor, user.uid);
+            if (isDuplicate) {
+                toast.dismiss(loadingToast);
+                toast.error('This face is already registered to another account. Multiple accounts with the same face are not allowed.');
+                return;
+            }
+
             const updateData = {
                 profile: {
                     phone,
@@ -131,16 +156,12 @@ export const StudentOnboarding = () => {
             await userService.updateUser(user.uid, updateData);
             
             setUser({ ...user, ...updateData });
+            toast.dismiss(loadingToast);
             toast.success('Onboarding completed successfully!');
             navigate('/student/dashboard');
         } catch (error: any) {
             console.error('Error saving profile:', error);
-            toast.error(error.message || 'Failed to save profile. Please try again.');
-        }
-    };
-
-    return (
-        <div className="min-h-screen bg-white text-text-light flex flex-col">
+            toast.dismiss(loadingToast);
             {/* Header */}
             <div className="bg-primary px-4 sm:px-8 py-8 sm:py-10 text-white shadow-md">
                 <div className="max-w-4xl mx-auto">

@@ -14,7 +14,13 @@ export const LecturerDashboard = () => {
         enabled: !!user?.uid
     });
 
-    const recentActivity = myClasses.length > 0 ? myClasses.slice(0, 3) : [];
+    const recentActivity = myClasses.length > 0 
+        ? [...myClasses].sort((a, b) => {
+            const timeA = new Date(a.updatedAt || a.createdAt || 0).getTime();
+            const timeB = new Date(b.updatedAt || b.createdAt || 0).getTime();
+            return timeB - timeA;
+        }).slice(0, 3)
+        : [];
 
     return (
         <DashboardLayout>
@@ -99,11 +105,11 @@ export const LecturerDashboard = () => {
                                     {recentActivity.map((cls) => (
                                         <div key={cls.id} className="flex items-start gap-3 pb-4 border-b border-slate-100 last:border-0 last:pb-0">
                                             <div className="bg-primary/10 p-2 rounded-lg text-primary mt-1">
-                                                <span className="material-icons-round text-[16px]">add_circle</span>
+                                                <span className="material-icons-round text-[16px]">update</span>
                                             </div>
                                             <div>
-                                                <p className="text-sm font-medium text-slate-800">Created class {cls.name}</p>
-                                                <p className="text-xs text-slate-500">{new Date(cls.createdAt?.seconds ? cls.createdAt.seconds * 1000 : cls.createdAt || Date.now()).toLocaleDateString()}</p>
+                                                <p className="text-sm font-medium text-slate-800">Class {cls.name} updated</p>
+                                                <p className="text-xs text-slate-500">{new Date(cls.updatedAt || cls.createdAt || Date.now()).toLocaleDateString()}</p>
                                             </div>
                                         </div>
                                     ))}

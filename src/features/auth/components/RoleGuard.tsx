@@ -36,12 +36,13 @@ export const RoleGuard = ({ allowedRoles }: RoleGuardProps) => {
   if (user.role === 'student') {
     const hasCompletedOnboarding = !!user.enrolledFaceId && !!user.profile;
     const isOnboardingRoute = location.pathname === '/student/onboarding';
+    const isRetake = new URLSearchParams(location.search).get('retake') === 'true';
 
     if (!hasCompletedOnboarding && !isOnboardingRoute) {
       return <Navigate to="/student/onboarding" replace />;
     }
 
-    if (hasCompletedOnboarding && isOnboardingRoute) {
+    if (hasCompletedOnboarding && isOnboardingRoute && !isRetake) {
       return <Navigate to="/student/dashboard" replace />;
     }
   }

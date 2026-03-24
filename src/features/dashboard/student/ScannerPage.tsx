@@ -36,8 +36,14 @@ export const ScannerPage = () => {
                     qrbox: { width: 250, height: 250 },
                 },
                 async (decodedText: string, _decodedResult: any) => {
+                    let payload;
                     try {
-                        const payload = JSON.parse(decodedText);
+                        payload = JSON.parse(decodedText);
+                    } catch (e) {
+                        return; // Ignore garbage reads from scanner
+                    }
+
+                    try {
                         if (!payload.sessionId) {
                             throw new Error('Invalid QR code');
                         }
@@ -64,9 +70,9 @@ export const ScannerPage = () => {
                         setStatus('success');
                         html5QrCode?.stop().catch(console.error);
                         toast.success('Attendance marked successfully');
-                    } catch (error) {
+                    } catch (error: any) {
                         console.error('Failed to parse or mark attendance:', error);
-                        toast.error('Failed to mark attendance. Invalid QR code or session.');
+                        toast.error(error.message || 'Failed to mark attendance. Invalid QR code or session.');
                     }
                 },
                 undefined
