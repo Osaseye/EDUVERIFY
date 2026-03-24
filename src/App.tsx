@@ -29,9 +29,11 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import { ErrorBoundary } from './components/shared/ErrorBoundary';
 import { Toaster } from 'sonner';
 import { useAuthListener } from './hooks/useAuthListener';
+import { useIdleTimeout } from './hooks/useIdleTimeout';
 
 function App() {
   useAuthListener();
+  useIdleTimeout();
 
   return (
     <ErrorBoundary>
