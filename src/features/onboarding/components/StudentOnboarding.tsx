@@ -162,6 +162,12 @@ export const StudentOnboarding = () => {
         } catch (error: any) {
             console.error('Error saving profile:', error);
             toast.dismiss(loadingToast);
+            toast.error('Failed to save profile. Please try again.');
+        }
+    };
+
+    return (
+        <div className="flex flex-col min-h-screen bg-white">
             {/* Header */}
             <div className="bg-primary px-4 sm:px-8 py-8 sm:py-10 text-white shadow-md">
                 <div className="max-w-4xl mx-auto">

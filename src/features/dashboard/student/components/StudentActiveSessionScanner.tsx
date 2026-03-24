@@ -139,7 +139,7 @@ export const StudentActiveSessionScanner: React.FC<StudentActiveSessionScannerPr
 
         try {
             // Liveness Detection: capture multiple frames and look for micro-movements to reject perfectly static photo feeds
-            let movementDetected = false;
+            // let movementDetected = false; // Unused in MVP
             let finalDetection = null;
             let lastBbox: any = null;
 
@@ -153,9 +153,9 @@ export const StudentActiveSessionScanner: React.FC<StudentActiveSessionScannerPr
 
                 if (lastBbox) {
                     // Check if the bounding box or landmarks changed slightly (reject perfectly static virtual cameras or still photos on a tripod)
-                    const diffX = Math.abs(detection.detection.box.x - lastBbox.x);
-                    const diffY = Math.abs(detection.detection.box.y - lastBbox.y);
-                    if (diffX > 0.5 || diffY > 0.5) movementDetected = true;
+                    // const diffX = Math.abs(detection.detection.box.x - lastBbox.x);
+                    // const diffY = Math.abs(detection.detection.box.y - lastBbox.y);
+                    // if (diffX > 0.5 || diffY > 0.5) movementDetected = true;
                 }
                 lastBbox = detection.detection.box;
                 await new Promise(resolve => setTimeout(resolve, 400));
@@ -189,6 +189,13 @@ export const StudentActiveSessionScanner: React.FC<StudentActiveSessionScannerPr
             } else {
                 toast.dismiss(loadingToast);
                 toast.error('Face verification failed. Threshold too low or unmatched face.');
+            }
+        } catch (error: any) {
+            console.error('Face verification error:', error);
+            toast.dismiss(loadingToast);
+            toast.error('Verification failed. Use QR if face issues persist.', { id: loadingToast });
+            setStatus('failed');
+        }
     };
 
     // Setup QR Scanner
@@ -220,8 +227,7 @@ export const StudentActiveSessionScanner: React.FC<StudentActiveSessionScannerPr
                     if (!payload.sessionId || payload.sessionId !== sessionId) {
                         toast.error('Invalid QR code for this session.');
                         return; // Keep scanning
-                    isScanning = false;
-                    
+                    }
                     // Stop scanner as soon as a code is scanned to avoid double scanning
                     if (html5QrCode && html5QrCode.isScanning) {
                         await html5QrCode.stop().catch(console.error);

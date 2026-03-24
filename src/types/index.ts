@@ -74,6 +74,7 @@ export interface ClassGroup {
   studentIds: string[];
   status: 'Active' | 'Archived';
   createdAt?: any;
+  updatedAt?: any;
   createdBy?: string;
 }
 

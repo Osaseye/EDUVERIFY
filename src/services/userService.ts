@@ -140,3 +140,5 @@ export const userService = {
       console.error('Error checking duplicate face:', error);
       throw error;
     }
+  }
+};
