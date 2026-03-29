@@ -160,8 +160,8 @@ export const LecturerClassDetailsPage = () => {
                             <div className="bg-white p-6 rounded-2xl shadow-sm border border-emerald-100 mb-6">
                                 <QRCodeSVG 
                                     value={JSON.stringify({ sessionId: activeSession.id, token: activeSession.qrCodeToken })}
-                                    size={200}
-                                    level="H"
+                                    size={350}
+                                    level="L"
                                     includeMargin
                                 />
                             </div>

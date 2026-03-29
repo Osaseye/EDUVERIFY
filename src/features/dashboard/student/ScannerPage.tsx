@@ -32,8 +32,7 @@ export const ScannerPage = () => {
             html5QrCode.start(
                 { facingMode: 'environment' },
                 {
-                    fps: 10,
-                    qrbox: { width: 250, height: 250 },
+                    fps: 10
                 },
                 async (decodedText: string, _decodedResult: any) => {
                     let payload;

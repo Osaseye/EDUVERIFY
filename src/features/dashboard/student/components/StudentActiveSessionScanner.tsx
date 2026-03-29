@@ -207,8 +207,7 @@ export const StudentActiveSessionScanner: React.FC<StudentActiveSessionScannerPr
             html5QrCode = new Html5Qrcode('reader');
             
             const config = {
-                fps: 10,
-                qrbox: { width: 250, height: 250 },
+                fps: 10
             };
 
             const onScanSuccess = async (decodedText: string, _decodedResult: any) => {
