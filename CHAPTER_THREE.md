@@ -6,7 +6,7 @@
 
 ### 3.1 Introduction
 
-This chapter presents a comprehensive analysis and design of **EduVerify**, a biometric-powered attendance management system for higher institutions. The chapter examines the shortcomings of the existing manual attendance system, identifies the functional and non-functional requirements for the proposed system, and presents a detailed architectural and database design using standard software engineering modelling techniques. The system is designed to automate attendance verification through facial recognition, QR code scanning, and GPS geofencing, thereby eliminating impersonation, proxy attendance, and data manipulation inherent in traditional methods.
+This chapter presents a comprehensive analysis and design of **EduVerify**, a multi-factor authentication attendance management system for higher institutions. The chapter examines the shortcomings of the existing manual attendance system, identifies the functional and non-functional requirements for the proposed system, and presents a detailed architectural and database design using standard software engineering modelling techniques. The system is designed to automate attendance verification through facial recognition, QR code scanning, and GPS geofencing, thereby eliminating impersonation, proxy attendance, and data manipulation inherent in traditional methods.
 
 ---
 
