@@ -66,11 +66,11 @@ export const CreateAttendanceSessionPage = () => {
                     createWithLocation(position.coords.latitude, position.coords.longitude);
                 },
                 (error) => {
-                    console.error("Error obtaining location", error);
-                    toast.error("Location access denied or unavailable. Session started without strict geofencing.");
+                    console.warn("Location warning:", error.message);
+                    toast.error("Using approximate location (location access denied or timed out).");
                     createWithLocation(0, 0);
                 },
-                { enableHighAccuracy: true, timeout: 5000 }
+                { enableHighAccuracy: false, timeout: 15000, maximumAge: 10000 }
             );
         } else {
             createWithLocation(0, 0);
