@@ -2,7 +2,7 @@
   <img src="public/icon.png" alt="EduVerify Logo" width="120" />
 </p>
 
-<h1 align="center">EduVerify – Smart Attendance Management System</h1>
+<h1 align="center">EduVerify – Multi-Factor Authentication Attendance Management System</h1>
 
 <p align="center">
   A biometric-powered, geofenced attendance verification platform for higher institutions.<br/>
@@ -43,7 +43,7 @@
 
 ## Overview
 
-**EduVerify** is a modern web-based attendance management system designed for Nigerian universities and other higher institutions. It replaces error-prone manual attendance processes with a dual-factor biometric verification system combining **facial recognition** and **QR code scanning**, reinforced by **GPS geofencing** to ensure students are physically present in the lecture venue.
+**EduVerify** is a multi-factor authentication attendance management system designed for Nigerian universities and other higher institutions. It replaces error-prone manual attendance processes with a dual-factor biometric verification system combining **facial recognition** and **QR code scanning**, reinforced by **GPS geofencing** to ensure students are physically present in the lecture venue.
 
 The system serves three user roles — **Students**, **Lecturers**, and **Administrators** — each with dedicated dashboards and workflows built around a real-time Firebase backend.
 
